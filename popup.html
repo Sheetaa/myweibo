@@ -1,0 +1,226 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
+    <title>我的微博</title>
+    <link rel="icon" href="images/myweibo.ico" type="image/x-icon" />
+    <link rel="shortcut icon" href="images/myweibo.ico" type="image/x-icon" />
+    <link rel="stylesheet" type="text/css" href="css/jquery-ui-1.10.2.custom.min.css">
+    <link rel="stylesheet" type="text/css" href="css/bootstrap.min.css">
+    <script src="js/jquery-1.9.1.js"></script>
+    <script src="js/jquery-ui-1.10.2.custom.min.js"></script>
+    <script src="popup.js"></script>
+    <style type="text/css">
+      body {
+        font-family: "Arial";
+        font-size: 12px;
+        width: 620px;
+        text-align: center;
+      }
+      ul {
+        position: fixed;
+        top: 0px;
+        /*width: 620px;*/
+        background-color: white;
+        z-index: 999;
+      }
+      .tool {
+        position: fixed;
+        right: 0px;
+      }
+      a.name-url {
+        color: green;
+        font-weight: bold;
+      }
+      a.from-url {
+        color: green;
+        font-weight: 300;
+      }
+      a.text-url {
+        color: orange;
+        font-weight: normal;
+      }
+      a:link {text-decoration: none;}
+      a:visited {text-decoration: none;}
+      a:hover {text-decoration: underline;}
+      a:active {text-decoration: underline;}
+      #friends_timeline, #user_timeline {
+        float: left;
+        padding-top: 40px;
+        text-align: left;
+      }
+      #update {
+        padding-top: 40px;
+      }
+      .wb-container {
+        float: left;
+        width: 560px;
+        padding: 10px;
+        margin-bottom: 10px;
+        border: 1px solid black;
+      }
+      .wb-face {
+        float: left;
+        padding-right: 10px;
+      }
+      .username {
+        margin-bottom: 5px;
+      }
+      .wb-detail {
+        float: left;
+        width: 85%;
+      }
+      .wb-func {
+        margin-top: 5px;
+      }
+      .wb-from {
+        float: left;
+      }
+      .wb-handle {
+        float: right;
+      }
+      .wb-media-expand {
+        float: left;
+        min-width: 466px;
+        margin-top: 10px;
+        padding: 5px;
+        background-color: #DBDBDB;
+      }
+      .wb-media-expand .wb-detail {
+        width: 100%;
+      }
+      .picture {
+        margin-top: 5px;
+      }
+      .tip {
+        text-align: left;
+      }
+      .tip-face {
+        float: left;
+      }
+      .tip-right {
+        float: left;
+        width: 85%;
+        margin-left: 10px;
+      }
+      .clear {
+        clear: both;
+      }
+      input, label {
+        display: inline;
+      }
+      .update-container {
+        width: 420px;
+        margin-left: auto;
+        margin-right: auto;
+      }
+      textarea {
+        height: 80px;
+        width: 400px;
+      }
+      .hint {
+        text-align: left;
+      }
+      .update {
+        float: right;
+      }
+      select {
+        float: right;
+        width: 80px;
+      }
+      .comments, .repost {
+        text-align: left;
+      }
+      .picture img {
+        cursor: url(big.cur), pointer;
+      }
+      .original-picture img {
+        cursor: url(small.cur), pointer;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="tabs">
+      <ul>
+        <li><a href="#friends_timeline">首页</a></li>
+        <li><a href="#user_timeline">用户微博</a></li>
+        <li><a href="#update">发布微博</a></li>
+      </ul>
+      <div class="tool">
+        <a id="btnNewWinPopup" href="/popup.html" target="_blank" title="弹出到新窗口">
+          <img src="/images/new_win.png" />
+        </a>
+        <a id="btnRefresh" href title="获取最新">
+          <img src="/images/refresh.png" />
+        </a>
+      </div>
+      <div id="friends_timeline">
+        <!-- 
+        <div class="wb-container">
+          <div class="wb-face">
+            <a><img /></a>
+          </div>
+          <div class="wb-detail">
+              <div class="username"></div>
+              <div class="wb-text"></div>
+              <div class="wb-media-list"></div>//图片视频
+              <div class="wb-media-expand"></div>//被转发的微博
+              <div class="wb-func">
+                <div class="wb-from"></div>
+                <div class="wb-handle"></div>
+              </div>
+          </div>
+        </div>
+      -->
+      </div>
+      <div id="user_timeline"></div>
+      <div id="update">
+        <div class="update-container">
+          <br/>
+          <textarea></textarea><br/>
+          <div class="hint"></div>
+          <button type="button" class="update">发布</button>
+          <select>
+            <option value="0">公开</option>
+            <option value="1">仅自己可见</option>
+            <option value="2">密友可见</option>
+            <option value="3">指定分组可见</option>
+          </select>
+          <div class="clear"></div>
+        </div>
+      </div>
+
+      <div class="original-picture"></div>
+      <!-- <div class="tip">
+        <div class="tip-face"></div>
+        <div class="tip-right">
+          <div class="tip-name"></div>
+          <div class="tip-info"></div>
+          <div class="tip-intro"></div>
+        </div>
+      </div> -->
+      <div class="comments">
+        <div style="display:none;">
+          <input type="text" class="wbId" value="0" />
+          <input type="text" class="wbUser" value="0" />
+        </div>
+        <textarea></textarea><br/>
+        <div class="hint"></div>
+        <div class="option">
+          <!-- <input type="checkbox" value="评论原微博" />评论原微博 -->
+        </div>
+      </div>
+      <div class="repost">
+        <div style="display:none;">
+          <input type="text" class="wbId" value="0" />
+          <input type="text" class="wbUser" value="0" />
+        </div>
+        <textarea></textarea><br/>
+        <div class="hint"></div>
+        <div class="option"></div>
+      </div>
+      <div class="clear"></div>
+    </div>
+  </body>
+</html>
