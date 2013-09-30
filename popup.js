@@ -1,16 +1,38 @@
-var faces,
-    height_friends = 40,//当前文档的高度 $().height()获取的高度不包括padding和margin 所以要手动计算
+var height_friends = 40,//当前文档的高度 $().height()获取的高度不包括padding和margin 所以要手动计算
     height_user = 40,
     flag_pageYOff_friends = 40,
     page_count_friends = 1,//公共微博的加载页数
-    page_count_user = 1;//用户微博的加载页数
+    page_count_user = 1,//用户微博的加载页数
+    storage = window.localStorage;
 
 $(function(){
+  //获取表情符号icon地址
+  // console.log(window);
+  // console.log(window.localStorage);
+  if(storage.getItem("faces") == null){
+    $.ajax({
+      url: 'https://api.weibo.com/2/emotions.json',
+      type: 'get',
+      dataType: 'json',
+      async: false,
+      data: {access_token: '2.00YL2LqBaI3ZIBd6e879533eI93eZD'},
+      success: function(data){
+        storage.setItem("faces", JSON.stringify(data));
+      }
+    });
+  }
+
   $("#tabs").tabs();
   $("button").button();
   $("#btnNewWinPopup").click(function(){
-    // chrome.windows.create({url: "popup.html", type: "popup", width: 653}, function(window){
+    // chrome.windows.create({url: "popup.html", type: "popup", width: 653});
     window.open("popup.html", "_blank", "width: 653px");
+  });
+  $("btnRefresh").click(function(){
+    $("#friends_timeline").html("");
+    height_friends = 40;
+    page_count_friends = 1;
+    fFriendsTimeline();
   });
   $("div.original-picture").dialog({
     autoOpen: false,
@@ -47,7 +69,7 @@ $(function(){
           data: {
             access_token: '2.00YL2LqBaI3ZIBd6e879533eI93eZD',
             id: id,
-            comment: encodeURIComponent(comment),
+            comment: comment,
             comment_ori: comment_ori
           },
           success: function(data){
@@ -90,7 +112,7 @@ $(function(){
           data: {
             access_token: '2.00YL2LqBaI3ZIBd6e879533eI93eZD',
             id: id,
-            status: encodeURIComponent(status),
+            status: status,
             is_comment: is_comment
           },
           success: function(data){
@@ -100,17 +122,6 @@ $(function(){
         });
         $(this).dialog("close");
       }
-    }
-  });
-  //获取表情符号icon地址
-  $.ajax({
-    url: 'https://api.weibo.com/2/emotions.json',
-    type: 'get',
-    dataType: 'json',
-    async: false,
-    data: {access_token: '2.00YL2LqBaI3ZIBd6e879533eI93eZD'},
-    success: function(data){
-      faces = data;
     }
   });
   fFriendsTimeline();
@@ -506,6 +517,7 @@ function fParseURL(text){
   var face = text.match(/[[\w\u4E00-\u9FA5\uf900-\ufa2d]+?]/ig);
   if(face != undefined && face.length !== 0){
     for (var i = 0; i < face.length; i++) {
+      var faces = JSON.parse(storage.getItem("faces"));
       for (var j = 0; j < faces.length; j++) {
         if(face[i] == faces[j].value){
           text = text.replace(face[i], "<img src='"+faces[j].icon+"'/>");

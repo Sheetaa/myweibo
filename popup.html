@@ -25,9 +25,17 @@
         background-color: white;
         z-index: 999;
       }
-      .tool {
+      .toolbar {
         position: fixed;
+        top: 0px;
         right: 0px;
+        width: 620px;
+        height: 40px;
+        background-color: white;
+        z-index: 998;
+      }
+      .toolbar a {
+        float: right;
       }
       a.name-url {
         color: green;
@@ -133,10 +141,10 @@
         text-align: left;
       }
       .picture img {
-        cursor: url(big.cur), pointer;
+        cursor: url(images/big.cur), pointer;
       }
       .original-picture img {
-        cursor: url(small.cur), pointer;
+        cursor: url(images/small.cur), pointer;
       }
     </style>
   </head>
@@ -147,8 +155,8 @@
         <li><a href="#user_timeline">用户微博</a></li>
         <li><a href="#update">发布微博</a></li>
       </ul>
-      <div class="tool">
-        <a id="btnNewWinPopup" href="/popup.html" target="_blank" title="弹出到新窗口">
+      <div class="toolbar">
+        <a id="btnNewWinPopup" href title="弹出到新窗口">
           <img src="/images/new_win.png" />
         </a>
         <a id="btnRefresh" href title="获取最新">
