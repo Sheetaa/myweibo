@@ -15,7 +15,7 @@ $(function(){
       type: 'get',
       dataType: 'json',
       async: false,
-      data: {access_token: '2.00YL2LqBaI3ZIBd6e879533eI93eZD'},
+      data: {access_token: access_token},
       success: function(data){
         storage.setItem("faces", JSON.stringify(data));
       }
@@ -67,7 +67,7 @@ $(function(){
           dataType: 'json',
           async: false,
           data: {
-            access_token: '2.00YL2LqBaI3ZIBd6e879533eI93eZD',
+            access_token: access_token,
             id: id,
             comment: comment,
             comment_ori: comment_ori
@@ -110,7 +110,7 @@ $(function(){
           dataType: 'json',
           async: false,
           data: {
-            access_token: '2.00YL2LqBaI3ZIBd6e879533eI93eZD',
+            access_token: access_token,
             id: id,
             status: status,
             is_comment: is_comment
@@ -190,7 +190,7 @@ $(function(){
         type: 'post',
         dataType: 'json',
         data: {
-          access_token: '2.00YL2LqBaI3ZIBd6e879533eI93eZD',
+          access_token: access_token,
           status: content,
           visiable: option
         },
@@ -213,7 +213,7 @@ function fFriendsTimeline(){
     dataType: 'json',
     async: false,
     data: {
-      access_token: '2.00YL2LqBaI3ZIBd6e879533eI93eZD',
+      access_token: access_token,
       page: page_count_friends++
     },
     success: function(data){
@@ -238,7 +238,7 @@ function fUserTimeline(screen_name){
     dataType: 'json',
     async: false,
     data: {
-      access_token: '2.00YL2LqBaI3ZIBd6e879533eI93eZD',
+      access_token: access_token,
       screen_name: screen_name,
       page: page_count_user++
     },
@@ -453,7 +453,7 @@ function fWeiboGenerator(weibo, isRepost){
         type: 'post',
         dataType: 'json',
         data: {
-          access_token: '2.00YL2LqBaI3ZIBd6e879533eI93eZD',
+          access_token: access_token,
           id: weibo.id
         },
         success: function(data){
@@ -467,7 +467,7 @@ function fWeiboGenerator(weibo, isRepost){
         type: 'post',
         dataType: 'json',
         data: {
-          access_token: '2.00YL2LqBaI3ZIBd6e879533eI93eZD',
+          access_token: access_token,
           id: weibo.id
         },
         success: function(data){
