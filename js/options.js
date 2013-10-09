@@ -63,7 +63,8 @@ $(function(){
           uid: uid
         },
         success: function(data){
-          fAddUserInfo(data);
+          user = data;
+          fAddUserInfo();
           storage.setItem("user", JSON.stringify(data));
           $("#logout").css("display", "block");
           $("#login").css("display", "none");
