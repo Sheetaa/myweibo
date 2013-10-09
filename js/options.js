@@ -74,15 +74,16 @@ $(function(){
     }
   });
   $("#rmAccount").click(function(){
-    storage.removeItem("access_token");
-    storage.removeItem("uid");
-    storage.removeItem("user");
     $.ajax({
       url: 'https://api.weibo.com/oauth2/revokeoauth2',
       type: 'get',
       dataType: 'json',
       data: {access_token: access_token},
       success: function(data){
+        storage.removeItem("access_token");
+        storage.removeItem("uid");
+        storage.removeItem("user");
+        $("#code").val("");
         $("#logout").css("display", "none");
         $("#login").css("display", "block");
         alert("注销成功");
