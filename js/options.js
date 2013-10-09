@@ -8,6 +8,7 @@ var storage = window.localStorage,
     user;
 
 $(function(){
+  $("button").button();
   if(storage.getItem("access_token") == undefined){
     $("#logout").css("display", "none");
   } else {

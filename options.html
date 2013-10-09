@@ -17,13 +17,17 @@
         font-family: "Arial";
         font-size: 12px;
         width: 620px;
-        text-align: center;
+        margin-left: auto;
+        margin-right: auto;
       }
-      #login, #logout {
+      #container {
         text-align: left;
       }
-      .tip {
-        text-align: left;
+      #header {
+        
+      }
+      hr {
+        height:1px;border:none;border-top:1px solid #555555;
       }
       .tip-face {
         float: left;
@@ -36,7 +40,11 @@
     </style>
   </head>
   <body>
-    <div>
+    <div id="container">
+      <div id="header">
+        <h1>超凡微博 V1.0</div>
+      </div>
+      <hr />
       <div id="login">
         <button type="button" id="getCode">获取授权码</button>
         <input type="text" id="code" />
