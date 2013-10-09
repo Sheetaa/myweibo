@@ -1,57 +1,112 @@
-var APP_KEY = "3947487124",
+var storage = window.localStorage,
+    APP_KEY = "3947487124",
     APP_SECRET = "4c98313725656a176f05490df82294c4",
     // REDIRECT_URI = "chrome-extension://fpkjjgofghdhnnlkpomfohihmppjmpof/options.html";
     REDIRECT_URI = "https://api.weibo.com/oauth2/default.html",
-    CODE,
-    access_token;
+    access_token,
+    uid,
+    user;
 
 $(function(){
-  $("#addAccount").click(function(){
+  if(storage.getItem("access_token") == undefined){
+    $("#logout").css("display", "none");
+  } else {
+    $("#login").css("display", "none");
+  }
+  $("#getCode").click(function(){
     window.open("https://api.weibo.com/oauth2/authorize?client_id="+APP_KEY+"&redirect_uri="+REDIRECT_URI);
-    // $.ajax({
-    //   url: 'https://api.weibo.com/oauth2/authorize',
-    //   type: 'post',
-    //   dataType: 'json',
-    //   data: {
-    //     client_id: APP_KEY,
-    //     redirect_uri: REDIRECT_URI
-    //   },
-    //   success: function(data){
-    //     console.log(data);
-    //   },
-    //   error: function(jqXHR, textStatus, errorThrown){
-    //     console.log(jqXHR);
-    //     console.log(textStatus);
-    //     console.log(errorThrown);
-    //   }
-    // });
   });
-  $("#code").on("change", function(){
+  $("#addAccount").click(function(){
+    if($("#code").val() == ""){
+      alert("请先获取授权码");
+    } else {
+      console.log($("#code").val());
+      $.ajax({
+        url: 'https://api.weibo.com/oauth2/access_token',
+        type: 'post',
+        dataType: 'json',
+        async: false,
+        data: {
+          client_id: APP_KEY,
+          client_secret: APP_SECRET,
+          grant_type: "authorization_code",
+          code: $("#code").val(),
+          redirect_uri: REDIRECT_URI
+        },
+        success: function(data){
+          console.log(data);
+          access_token = data.access_token;
+          storage.setItem("access_token", access_token);
+        }
+      });
+      $.ajax({
+        url: 'https://api.weibo.com/2/account/get_uid.json',
+        type: 'get',
+        dataType: 'json',
+        async: false,
+        data: {
+          access_token: access_token
+        },
+        success: function(data){
+          uid = data.uid;
+          storage.setItem("uid", uid);
+        }
+      });
+      $.ajax({
+        url: 'https://api.weibo.com/2/users/show.json',
+        type: 'get',
+        dataType: 'json',
+        async: false,
+        data: {
+          access_token: access_token,
+          uid: uid
+        },
+        success: function(data){
+          fAddUserInfo(data);
+          storage.setItem("user", JSON.stringify(data));
+          $("#logout").css("display", "block");
+          $("#login").css("display", "none");
+          alert("添加成功");
+        }
+      });
+    }
+  });
+  $("#rmAccount").click(function(){
+    storage.removeItem("access_token");
+    storage.removeItem("uid");
+    storage.removeItem("user");
     $.ajax({
-      url: 'https://api.weibo.com/oauth2/access_token',
-      type: 'post',
+      url: 'https://api.weibo.com/oauth2/revokeoauth2',
+      type: 'get',
       dataType: 'json',
-      async: false,
-      data: {
-        client_id: APP_KEY,
-        client_secret: APP_SECRET,
-        grant_type: "authorization_code",
-        code: CODE,
-        redirect_uri: REDIRECT_URI
-      },
+      data: {access_token: access_token},
       success: function(data){
-        console.log(data);
-        access_token = data.access_token;
+        $("#logout").css("display", "none");
+        $("#login").css("display", "block");
+        alert("注销成功");
       }
     });
   });
+  if(storage.getItem("user") != undefined){
+    user = JSON.parse(storage.getItem("user"));
+    fAddUserInfo();
+  }
 });
+
+function fAddUserInfo(){
+  $("div.tip-face").html("<img src='"+user.profile_image_url+"'/>");
+  $("div.tip-name").html("<strong>"+user.screen_name+"</strong>");
+  if(user.verified){
+    $("div.tip-name").append("<img src='images/verified.gif' />");
+  }
+  $("div.tip-info").html("<strong>微博</strong> "+user.statuses_count+" <strong>粉丝</strong> "+user.followers_count+" <strong>关注</strong> "+user.friends_count+" <strong>收藏</strong> "+user.favourites_count);
+  $("div.tip-intro").html("<strong>简介</strong> "+user.description);
+}
 
 chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab){
   if(changeInfo.status === "loading" && tab.url.indexOf(REDIRECT_URI+"?code=") === 0){
     var d = OAuth.decodeForm(tab.url);
-    CODE = d.code;
-    $("#code").val(CODE);
+    $("#code").val(d[0][1]);
     chrome.tabs.remove(tabId);
   }
 });

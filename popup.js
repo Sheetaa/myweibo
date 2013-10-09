@@ -1,11 +1,19 @@
-var height_friends = 40,//当前文档的高度 $().height()获取的高度不包括padding和margin 所以要手动计算
+var storage = window.localStorage,
+    access_token,
+    user,
+    height_friends = 40,//当前文档的高度 $().height()获取的高度不包括padding和margin 所以要手动计算
     height_user = 40,
     flag_pageYOff_friends = 40,
     page_count_friends = 1,//公共微博的加载页数
-    page_count_user = 1,//用户微博的加载页数
-    storage = window.localStorage;
+    page_count_user = 1;//用户微博的加载页数
 
 $(function(){
+  if(storage.getItem("access_token") == undefined || storage.getItem("access_token") == ""){
+    alert("请先添加账户");
+  } else {
+    access_token = storage.getItem("access_token");
+    user = storage.getItem("user");
+  }
   //获取表情符号icon地址
   // console.log(window);
   // console.log(window.localStorage);
@@ -134,7 +142,7 @@ $(function(){
     $("#user_timeline").html("");
     page_count_user = 1;
     height_user = 40;
-    fUserTimeline("Johnnx");
+    fUserTimeline(user.screen_name);
   });
   $("ul li:eq(0)").click(function(){
     console.log("flag: "+flag_pageYOff_friends);
@@ -207,6 +215,7 @@ $(function(){
 *得到当前用户及其所关注的微博
 */
 function fFriendsTimeline(){
+  console.log(access_token);
   $.ajax({
     url: 'https://api.weibo.com/2/statuses/friends_timeline.json',
     type: 'get',
