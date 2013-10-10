@@ -14,21 +14,6 @@ $(function(){
     access_token = storage.getItem("access_token");
     user = storage.getItem("user");
   }
-  //获取表情符号icon地址
-  // console.log(window);
-  // console.log(window.localStorage);
-  if(storage.getItem("faces") == null){
-    $.ajax({
-      url: 'https://api.weibo.com/2/emotions.json',
-      type: 'get',
-      dataType: 'json',
-      async: false,
-      data: {access_token: access_token},
-      success: function(data){
-        storage.setItem("faces", JSON.stringify(data));
-      }
-    });
-  }
 
   $("#tabs").tabs();
   $("button").button();
@@ -215,7 +200,6 @@ $(function(){
 *得到当前用户及其所关注的微博
 */
 function fFriendsTimeline(){
-  console.log(access_token);
   $.ajax({
     url: 'https://api.weibo.com/2/statuses/friends_timeline.json',
     type: 'get',
@@ -233,7 +217,9 @@ function fFriendsTimeline(){
         fWeiboHover();
         height_friends += $wbContainer.height()+32;
       }
-      console.log("height_friends: "+height_friends);
+      // console.log("height_friends: "+height_friends);
+      storage.setItem("totalUnread", "0");
+      chrome.browserAction.setBadgeText({text: ""});
     }
   });
 }
