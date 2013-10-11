@@ -5,7 +5,8 @@ var storage = window.localStorage,
     height_user = 40,
     flag_pageYOff_friends = 40,
     page_count_friends = 1,//公共微博的加载页数
-    page_count_user = 1;//用户微博的加载页数
+    page_count_user = 1,//用户微博的加载页数
+    fancyGroup = 0;
 
 $(function(){
   if(storage.getItem("access_token") == undefined || storage.getItem("access_token") == ""){
@@ -26,17 +27,6 @@ $(function(){
     height_friends = 40;
     page_count_friends = 1;
     fFriendsTimeline();
-  });
-  $("div.original-picture").dialog({
-    autoOpen: false,
-    closeOnEscape: true,
-    height: "auto",
-    width: "auto",
-    modal: true,
-    title: "原始图片",
-    position: [0, 40]//{my: "center", at: "center", of: "body"}
-  }).bind("mousedown", function(){
-    $(this).dialog("close");
   });
   $("div.comments").dialog({
     autoOpen: false,
@@ -118,6 +108,7 @@ $(function(){
     }
   });
   fFriendsTimeline();
+
   $("ul li:eq(1)").click(function(event){
     flag_pageYOff_friends = event.pageY;
     // console.log(event);
@@ -342,15 +333,29 @@ function fWeiboGenerator(weibo, isRepost){
     var $wbPics = $("<div class='picture'></div>");
     //console.log(pics.length);
     for (var i = 0, m = pics.length; i < m; i++) {
-      //$wbPics.append("<a href='"+original+"' target='_blank' ><img src='"+thumbnail+"' /></a>");
-      $wbPics.append("<img src='"+pics[i].thumbnail_pic+"' />");
-    }
-    $("img", $wbPics).bind("mousedown", function(){
-      var thumbnail = $(this).attr("src");
+      var thumbnail = pics[i].thumbnail_pic;
       var original = thumbnail.replace(/thumbnail/, "large");
-      $("div.original-picture").html("<img src='"+original+"'/>");
-      $("div.original-picture").dialog("open");
-    })
+      $wbPics.append("<a class='fancy' rel='group"+fancyGroup+"' href='"+original+"'><img src='"+thumbnail+"' /></a>");
+      //$wbPics.append("<img src='"+pics[i].thumbnail_pic+"' />");
+    }
+    fancyGroup++;
+    $("a.fancy").fancybox({
+      helpers : {
+        overlay : {
+          css : {'background' : 'rgba(220, 220, 220, 0.8)'}
+        },
+        thumbs  : {
+          width : 50,
+          height  : 50
+        }
+      }
+    });
+    // $("img", $wbPics).bind("mousedown", function(){
+    //   var thumbnail = $(this).attr("src");
+    //   var original = thumbnail.replace(/thumbnail/, "large");
+    //   $("div.original-picture").html("<img src='"+original+"'/>");
+    //   $("div.original-picture").dialog("open");
+    // })
     $wbDetail.append($wbPics);
   }
 

@@ -1,0 +1,131 @@
+body {
+  font-family: "Arial";
+  font-size: 12px;
+  width: 620px;
+  text-align: center;
+}
+ul {
+  position: fixed;
+  top: 0px;
+  /*width: 620px;*/
+  background-color: white;
+  z-index: 999;
+}
+.toolbar {
+  position: fixed;
+  top: 0px;
+  right: 0px;
+  width: 620px;
+  height: 40px;
+  background-color: white;
+  z-index: 998;
+}
+.toolbar a {
+  float: right;
+}
+a.name-url {
+  color: green;
+  font-weight: bold;
+}
+a.from-url {
+  color: green;
+  font-weight: 300;
+}
+a.text-url {
+  color: orange;
+  font-weight: normal;
+}
+a:link {text-decoration: none;}
+a:visited {text-decoration: none;}
+a:hover {text-decoration: underline;}
+a:active {text-decoration: underline;}
+#friends_timeline, #user_timeline {
+  float: left;
+  margin-top: 40px;
+  text-align: left;
+}
+#update {
+  margin-top: 40px;
+}
+.wb-container {
+  float: left;
+  width: 560px;
+  padding: 10px;
+  margin-bottom: 10px;
+  border: 1px solid black;
+}
+.wb-face {
+  float: left;
+  padding-right: 10px;
+}
+.username {
+  margin-bottom: 5px;
+}
+.wb-detail {
+  float: left;
+  width: 85%;
+}
+.wb-func {
+  margin-top: 5px;
+}
+.wb-from {
+  float: left;
+}
+.wb-handle {
+  float: right;
+}
+.wb-media-expand {
+  float: left;
+  min-width: 466px;
+  margin-top: 10px;
+  padding: 5px;
+  background-color: #DBDBDB;
+}
+.wb-media-expand .wb-detail {
+  width: 100%;
+}
+.picture {
+  margin-top: 5px;
+}
+.tip {
+  text-align: left;
+}
+.tip-face {
+  float: left;
+}
+.tip-right {
+  float: left;
+  width: 85%;
+  margin-left: 10px;
+}
+.clear {
+  clear: both;
+}
+input, label {
+  display: inline;
+}
+.update-container {
+  width: 420px;
+  margin-left: auto;
+  margin-right: auto;
+}
+textarea {
+  height: 80px;
+  width: 400px;
+}
+.hint {
+  text-align: left;
+}
+.update {
+  float: right;
+}
+select {
+  float: right;
+  width: 80px;
+}
+.comments, .repost {
+  text-align: left;
+}
+.picture img {
+  cursor: url(big.cur), pointer;
+}
