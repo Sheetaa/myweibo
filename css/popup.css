@@ -11,6 +11,13 @@ ul {
   background-color: white;
   z-index: 999;
 }
+.unreadCount {
+  float: right;
+  width: 20px;
+  height: 20px;
+  background-color: red;
+  color: white;
+}
 .toolbar {
   position: fixed;
   top: 0px;
@@ -39,7 +46,7 @@ a:link {text-decoration: none;}
 a:visited {text-decoration: none;}
 a:hover {text-decoration: underline;}
 a:active {text-decoration: underline;}
-#friends_timeline, #user_timeline {
+#friends_timeline, #user_timeline, #mentions, #comments {
   float: left;
   margin-top: 40px;
   text-align: left;

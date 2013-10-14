@@ -3,9 +3,11 @@ var storage = window.localStorage,
     user,
     height_friends = 40,//当前文档的高度 $().height()获取的高度不包括padding和margin 所以要手动计算
     height_user = 40,
+    height_mentions = 40,
     flag_pageYOff_friends = 40,
     page_count_friends = 1,//公共微博的加载页数
     page_count_user = 1,//用户微博的加载页数
+    page_count_mentions = 1,
     fancyGroup = 0;
 
 $(function(){
@@ -22,13 +24,13 @@ $(function(){
     // chrome.windows.create({url: "popup.html", type: "popup", width: 653});
     window.open("popup.html", "_blank", "width: 653px");
   });
-  $("btnRefresh").click(function(){
+  $("#btnRefresh").click(function(){
     $("#friends_timeline").html("");
     height_friends = 40;
     page_count_friends = 1;
     fFriendsTimeline();
   });
-  $("div.comments").dialog({
+  $("div.commentsDialog").dialog({
     autoOpen: false,
     closeOnEscape: true,
     height: "auto",
@@ -39,8 +41,8 @@ $(function(){
         var id = $(".wbId", this).val();
         var comment = $("textarea", this).val();
         var comment_ori = 0;
-        if($("#comretweeted", this) != undefined && $("#comretweeted", this)[0].checked){
-          comment_ori = 1;
+        if($("#comretweeted", this).length !== 0 && $("#comretweeted", this)[0].checked){
+            comment_ori = 1;
         }
         // console.log($("#comretweeted", this)[0].checked);
         // console.log(comment_ori);
@@ -64,7 +66,7 @@ $(function(){
       }
     }
   });
-  $("div.repost").dialog({
+  $("div.repostDialog").dialog({
     autoOpen: false,
     closeOnEscape: true,
     height: "auto",
@@ -75,10 +77,10 @@ $(function(){
         var id = $(".wbId", this).val();
         var status = $("textarea", this).val();
         var is_comment = 0;
-        if($("#rpcomrt", this) == undefined && $("rpcom", this)[0].checked){
+        if($("#rpcomrt", this).length == 0 && $("#rpcom", this)[0].checked){
           is_comment = 1;
         }
-        if($("#rpcomrt", this) != undefined){
+        if($("#rpcomrt", this).length !== 0){
           if($("#rpcom", this)[0].checked == true && $("#rpcomrt", this)[0].checked == false){
             is_comment = 1;
           } else if($("#rpcom", this)[0].checked == false && $("#rpcomrt", this)[0].checked == true){
@@ -108,6 +110,10 @@ $(function(){
     }
   });
   fFriendsTimeline();
+  fUpdateUnreadCount();
+  window.setInterval(function(){
+    fUpdateUnreadCount();
+  }, 1000);
 
   $("ul li:eq(1)").click(function(event){
     flag_pageYOff_friends = event.pageY;
@@ -123,6 +129,15 @@ $(function(){
   $("ul li:eq(0)").click(function(){
     console.log("flag: "+flag_pageYOff_friends);
     window.scrollTo(0, flag_pageYOff_friends);
+  });
+  $("ul li:eq(2)").click(function(){
+    $("#mentions").html("");
+    page_count_mentions = 1;
+    height_mentions = 40;
+    fMentions();
+    if($("li:eq(2) .unreadCount").length != 0){
+      $("li:eq(2) .unreadCount").remove();
+    }
   });
   $("div.wb-container a[href=#user_timeline]").click(function(){
     $("#user_timeline").html("");
@@ -239,6 +254,30 @@ function fUserTimeline(screen_name){
         height_user += $wbContainer.height()+32;
       }
       console.log("height_user: "+height_user);
+    }
+  });
+}
+/**
+*得到提及当前登陆用户的微博
+*/
+function fMentions(){
+  $.ajax({
+    url: 'https://api.weibo.com/2/statuses/mentions.json',
+    type: 'get',
+    dataType: 'json',
+    async: false,
+    data: {
+      access_token: access_token,
+      page: page_count_mentions++
+    },
+    success: function(data){
+      var statuses = data.statuses;
+      for (var i = 0; i < statuses.length; i++) {
+        var $wbContainer = fWeiboGenerator(statuses[i], false);
+        $("#mentions").append($wbContainer);
+        fWeiboHover();
+        height_mentions += $wbContainer.height()+32;
+      }
     }
   });
 }
@@ -380,7 +419,7 @@ function fWeiboGenerator(weibo, isRepost){
   // $aAttitudes = $("<a>赞("+weibo.attitudes_count+")</a>");
   // $wbHandle.append($aReposts).append("  |  ").append($aComments).append("  |  ").append($aAttitudes);
   $(".btn:eq(0)", $btnGroup).click(function(){
-    var $repost = $("div.repost");
+    var $repost = $("div.repostDialog");
     $(".wbId", $repost).attr("value", weibo.id);
     $(".wbUser", $repost).attr("value", user.screen_name);
     $repost.dialog("option", "title", "转发 @"+user.screen_name+" 的微博");
@@ -418,10 +457,10 @@ function fWeiboGenerator(weibo, isRepost){
 
   });
   $(".btn:eq(1)", $btnGroup).click(function(){
-    var $comments = $("div.comments");
+    var $comments = $("div.commentsDialog");
     $(".wbId", $comments).attr("value", weibo.id);
     $(".wbUser", $comments).attr("value", user.screen_name);
-    $comments.dialog("option", "title", "评论@"+user.screen_name+" 的微博");
+    $comments.dialog("option", "title", "评论 @"+user.screen_name+" 的微博");
     $("textarea", $comments).val("");
     $(".hint", $comments).html("你还可以输入<strong>140</strong>个字").css("color", "grey");
     $("textarea", $comments).on("input", function(event){
@@ -438,7 +477,7 @@ function fWeiboGenerator(weibo, isRepost){
       }
     });
     $(".option", $comments).html("");
-    if(weibo.retweeted_status != undefined){
+    if(weibo.retweeted_status !== undefined){
       $(".option", $comments).append("<input type='checkbox' id='comretweeted' /><label for='comretweeted'>评论原微博</label>");
     }
     $comments.dialog("open");
@@ -483,6 +522,44 @@ function fWeiboGenerator(weibo, isRepost){
   $wbDetail.append($wbFunc);
   $wbContainer.append($wbFace, $wbDetail);
   return $wbContainer;
+}
+/**
+*在导航栏上添加各项目的未读数目
+*/
+function fUpdateUnreadCount(){
+  if(storage.hasOwnProperty("unreadCount")){
+    if(storage.getItem("totalUnread") == "0"){
+      //set all unreadCount to 0
+    } else {
+      var unreadCount = JSON.parse(storage.getItem("unreadCount"));
+      // 未读微博数
+      if(unreadCount.status != 0){
+        if($("li:eq(0) .unreadCount").length == 0){
+          $("li:eq(0)").append("<div class='unreadCount'>"+unreadCount.status+"</div>");
+        } else {
+          $("li:eq(0) .unreadCount").text(unreadCount.status);
+        }
+      } else {
+        if($("li:eq(0) .unreadCount").length != 0){
+          $("li:eq(0) .unreadCount").remove();
+        }
+      }
+      // 未读@数
+      var mentions = unreadCount.mention_status + unreadCount.mention_cmt;
+      console.log(mentions);
+      if(mentions != 0){
+        if($("li:eq(2) .unreadCount").length == 0){
+          $("li:eq(2)").append("<div class='unreadCount'>"+mentions+"</div>");
+        } else {
+          $("li:eq(2) .unreadCount").text(mentions);
+        }
+      } else {
+        if($("li:eq(2) .unreadCount").length != 0){
+          $("li:eq(2) .unreadCount").remove();
+        }
+      }
+    }
+  }
 }
 /**
 *判断一条微博文本中用户@，话题#，网址http等各种链接，并添加链接标记
