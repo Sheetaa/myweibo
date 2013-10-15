@@ -30,7 +30,7 @@ if(storage.getItem("faces") == null){
 fUpdateIcon();
 window.setInterval(function(){
     fUpdateIcon();
-}, 10000);
+}, 1000);
 
 function fGetUnreadCount(){
     var xhr = new XMLHttpRequest();

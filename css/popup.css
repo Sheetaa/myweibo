@@ -12,11 +12,15 @@ ul {
   z-index: 999;
 }
 .unreadCount {
-  float: right;
-  width: 20px;
-  height: 20px;
+  position: absolute;
+  font-size: 15px;
+  padding: 0 2px 0 2px;
+  border-radius: 3px;
+  top: -10px;
+  right: -2px;
   background-color: red;
   color: white;
+  z-index: 999;
 }
 .toolbar {
   position: fixed;
@@ -60,6 +64,7 @@ a:active {text-decoration: underline;}
   padding: 10px;
   margin-bottom: 10px;
   border: 1px solid black;
+  border-radius: 5px;
 }
 .wb-face {
   float: left;

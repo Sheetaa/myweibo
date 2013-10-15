@@ -15,6 +15,7 @@ $(function(){
     alert("请先添加账户");
   } else {
     access_token = storage.getItem("access_token");
+    uid = storage.getItem("uid");
     user = storage.getItem("user");
   }
 
@@ -29,6 +30,9 @@ $(function(){
     height_friends = 40;
     page_count_friends = 1;
     fFriendsTimeline();
+    if($("li:eq(0) .unreadCount").length != 0){
+      $("li:eq(0) .unreadCount").remove();
+    }
   });
   $("div.commentsDialog").dialog({
     autoOpen: false,
@@ -113,7 +117,7 @@ $(function(){
   fUpdateUnreadCount();
   window.setInterval(function(){
     fUpdateUnreadCount();
-  }, 1000);
+  }, 30000);
 
   $("ul li:eq(1)").click(function(event){
     flag_pageYOff_friends = event.pageY;
@@ -524,13 +528,23 @@ function fWeiboGenerator(weibo, isRepost){
   return $wbContainer;
 }
 /**
-*在导航栏上添加各项目的未读数目
+*在导航栏上添加各栏目的未读数目
 */
 function fUpdateUnreadCount(){
   if(storage.hasOwnProperty("unreadCount")){
     if(storage.getItem("totalUnread") == "0"){
       //set all unreadCount to 0
+      if($("li:eq(0) .unreadCount").length != 0){
+        $("li:eq(0) .unreadCount").remove();
+      }
+      if($("li:eq(2) .unreadCount").length != 0){
+        $("li:eq(2) .unreadCount").remove();
+      }
+      if($("li:eq(3) .unreadCount").length != 0){
+        $("li:eq(3) .unreadCount").remove();
+      }
     } else {
+      // chrome.browserAction.setBadgeText({text: storage.getItem("totalUnread")});
       var unreadCount = JSON.parse(storage.getItem("unreadCount"));
       // 未读微博数
       if(unreadCount.status != 0){
@@ -546,7 +560,6 @@ function fUpdateUnreadCount(){
       }
       // 未读@数
       var mentions = unreadCount.mention_status + unreadCount.mention_cmt;
-      console.log(mentions);
       if(mentions != 0){
         if($("li:eq(2) .unreadCount").length == 0){
           $("li:eq(2)").append("<div class='unreadCount'>"+mentions+"</div>");
@@ -591,18 +604,18 @@ function fParseURL(text){
     }
   }
   //表情符号[呵呵]
-  var face = text.match(/[[\w\u4E00-\u9FA5\uf900-\ufa2d]+?]/ig);
-  if(face != undefined && face.length !== 0){
-    for (var i = 0; i < face.length; i++) {
-      var faces = JSON.parse(storage.getItem("faces"));
-      for (var j = 0; j < faces.length; j++) {
-        if(face[i] == faces[j].value){
-          text = text.replace(face[i], "<img src='"+faces[j].icon+"'/>");
-          break;
-        }
-      }
-    }
-  }
+  // var face = text.match(/[[\w\u4E00-\u9FA5\uf900-\ufa2d]+?]/ig);
+  // if(face != undefined && face.length !== 0){
+  //   for (var i = 0; i < face.length; i++) {
+  //     var faces = JSON.parse(storage.getItem("faces"));
+  //     for (var j = 0; j < faces.length; j++) {
+  //       if(face[i] == faces[j].value){
+  //         text = text.replace(face[i], "<img src='"+faces[j].icon+"'/>");
+  //         break;
+  //       }
+  //     }
+  //   }
+  // }
   $wbText.append(text);
   return $wbText;
 }
