@@ -1,10 +1,7 @@
 var storage = window.localStorage,
     access_token,
     user,
-    height_friends = 74,//当前文档的高度 $().height()获取的高度不包括padding和margin 所以要手动计算
-    height_user = 74,
-    height_mentions = 74,
-    flag_pageYOff_friends = 74,
+    flag_pageYOff_friends = 0,
     page_count_friends = 1,//公共微博的加载页数
     page_count_user = 1,//用户微博的加载页数
     page_count_mentions = 1,
@@ -27,7 +24,6 @@ $(function(){
   });
   $("#btnRefresh").click(function(){
     $("#friends_timeline").html("");
-    height_friends = 74;
     page_count_friends = 1;
     fFriendsTimeline();
     if($("li:eq(0) .unreadCount").length != 0){
@@ -48,8 +44,6 @@ $(function(){
         if($("#comretweeted", this).length !== 0 && $("#comretweeted", this)[0].checked){
             comment_ori = 1;
         }
-        // console.log($("#comretweeted", this)[0].checked);
-        // console.log(comment_ori);
         $.ajax({
           url: 'https://api.weibo.com/2/comments/create.json',
           type: 'post',
@@ -120,24 +114,17 @@ $(function(){
   }, 30000);
 
   $("ul li:eq(1)").click(function(event){
-    flag_pageYOff_friends = event.pageY;
-    // console.log(event);
-    // console.log(event.pageY);
-    // console.log(window.pageYOffset);
-    console.log("flag: "+flag_pageYOff_friends);
+    flag_pageYOff_friends = $(window).scrollTop();
     $("#user_timeline").html("");
     page_count_user = 1;
-    height_user = 40;
     fUserTimeline(user.screen_name);
   });
   $("ul li:eq(0)").click(function(){
-    console.log("flag: "+flag_pageYOff_friends);
     window.scrollTo(0, flag_pageYOff_friends);
   });
   $("ul li:eq(2)").click(function(){
     $("#mentions").html("");
     page_count_mentions = 1;
-    height_mentions = 40;
     fMentions();
     if($("li:eq(2) .unreadCount").length != 0){
       $("li:eq(2) .unreadCount").remove();
@@ -146,26 +133,27 @@ $(function(){
   $("div.wb-container a[href=#user_timeline]").click(function(){
     $("#user_timeline").html("");
     page_count_user = 1;
-    height_user = 40;
     fUserTimeline($(this).attr("screen_name"));// 貌似这是微博API的问题，可以调用自己的微博列表，不可以返回别人的微博列表，只有应用通过审核之后才可以
     $("#tabs").tabs("option", "active", 1);
   });
   
   console.log("window height: "+$(window).height());
   console.log("document height: "+$(document).height());
-  console.log("height_friends: "+height_friends);
   $("body").bind('mousewheel', function(event, delta, deltaX, deltaY) {
-    //console.log(delta, deltaX, deltaY); 
+    // console.log(delta, deltaX, deltaY); 
     // console.log(event.pageY); //event.pageY, pageX是鼠标当前位置到文档顶部的距离，注意是鼠标，不是滚动条
-    console.log($(document).scrollTop());
+    // $(document).scrollTop() == $(window).scrollTop() True
+    // console.log("document scrollTop: "+$(document).scrollTop());
+    // console.log("window scrollTop: "+$(window).scrollTop());
+    // console.log("window height: "+$(window).height());
     if($("#tabs").tabs("option", "active") == 0){
-      if(event.pageY >= $(document).height()){
-        console.log("yaochang");
+      if($(window).scrollTop() + $(window).height() >= $(document).height()){
+        console.log("Send a new request");
         fFriendsTimeline();
       }
     } else if($("#tabs").tabs("option", "active") == 1){
-      if(event.pageY >= height_user){
-        console.log("yaochang");
+      if($(window).scrollTop() + $(window).height() >= $(document).height()){
+        console.log("Send a new request");
         fUserTimeline();
       }
     }
@@ -228,9 +216,7 @@ function fFriendsTimeline(){
         var $wbContainer = fWeiboGenerator(statuses[i], false);
         $("#friends_timeline").append($wbContainer);
         fWeiboHover();
-        height_friends += $wbContainer.height()+32;
       }
-      // console.log("height_friends: "+height_friends);
       storage.setItem("totalUnread", "0");
       chrome.browserAction.setBadgeText({text: ""});
     }
@@ -258,9 +244,7 @@ function fUserTimeline(screen_name){
         var $wbContainer = fWeiboGenerator(statuses[i], false);
         $("#user_timeline").append($wbContainer);
         fWeiboHover();
-        height_user += $wbContainer.height()+32;
       }
-      console.log("height_user: "+height_user);
     }
   });
 }
@@ -283,7 +267,6 @@ function fMentions(){
         var $wbContainer = fWeiboGenerator(statuses[i], false);
         $("#mentions").append($wbContainer);
         fWeiboHover();
-        height_mentions += $wbContainer.height()+32;
       }
     }
   });
@@ -471,8 +454,6 @@ function fWeiboGenerator(weibo, isRepost){
     $("textarea", $comments).val("");
     $(".hint", $comments).html("你还可以输入<strong>140</strong>个字").css("color", "grey");
     $("textarea", $comments).on("input", function(event){
-      // console.log(event);
-      // console.log($(this));
       var count = 140 - $(this).val().length;
       if(count >= 0){
         if($(".hint", $comments).css("color") == "rgb(255, 0, 0)"){
