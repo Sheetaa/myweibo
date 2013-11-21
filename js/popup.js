@@ -1,10 +1,10 @@
 var storage = window.localStorage,
     access_token,
     user,
-    height_friends = 40,//当前文档的高度 $().height()获取的高度不包括padding和margin 所以要手动计算
-    height_user = 40,
-    height_mentions = 40,
-    flag_pageYOff_friends = 40,
+    height_friends = 74,//当前文档的高度 $().height()获取的高度不包括padding和margin 所以要手动计算
+    height_user = 74,
+    height_mentions = 74,
+    flag_pageYOff_friends = 74,
     page_count_friends = 1,//公共微博的加载页数
     page_count_user = 1,//用户微博的加载页数
     page_count_mentions = 1,
@@ -27,7 +27,7 @@ $(function(){
   });
   $("#btnRefresh").click(function(){
     $("#friends_timeline").html("");
-    height_friends = 40;
+    height_friends = 74;
     page_count_friends = 1;
     fFriendsTimeline();
     if($("li:eq(0) .unreadCount").length != 0){
@@ -151,12 +151,15 @@ $(function(){
     $("#tabs").tabs("option", "active", 1);
   });
   
-  //console.log($(document).height());
+  console.log("window height: "+$(window).height());
+  console.log("document height: "+$(document).height());
+  console.log("height_friends: "+height_friends);
   $("body").bind('mousewheel', function(event, delta, deltaX, deltaY) {
     //console.log(delta, deltaX, deltaY); 
-    console.log(event.pageY);
+    // console.log(event.pageY); //event.pageY, pageX是鼠标当前位置到文档顶部的距离，注意是鼠标，不是滚动条
+    console.log($(document).scrollTop());
     if($("#tabs").tabs("option", "active") == 0){
-      if(event.pageY >= height_friends){
+      if(event.pageY >= $(document).height()){
         console.log("yaochang");
         fFriendsTimeline();
       }
@@ -604,18 +607,18 @@ function fParseURL(text){
     }
   }
   //表情符号[呵呵]
-  // var face = text.match(/[[\w\u4E00-\u9FA5\uf900-\ufa2d]+?]/ig);
-  // if(face != undefined && face.length !== 0){
-  //   for (var i = 0; i < face.length; i++) {
-  //     var faces = JSON.parse(storage.getItem("faces"));
-  //     for (var j = 0; j < faces.length; j++) {
-  //       if(face[i] == faces[j].value){
-  //         text = text.replace(face[i], "<img src='"+faces[j].icon+"'/>");
-  //         break;
-  //       }
-  //     }
-  //   }
-  // }
+  var face = text.match(/[[\w\u4E00-\u9FA5\uf900-\ufa2d]+?]/ig);
+  if(face != undefined && face.length !== 0){
+    var faces = JSON.parse(storage.getItem("faces"));
+    for (var i = 0; i < face.length; i++) {
+      for (var j = 0; j < faces.length; j++) {
+        if(face[i] == faces[j].value){
+          text = text.replace(face[i], "<img src='"+faces[j].icon+"'/>");
+          break;
+        }
+      }
+    }
+  }
   $wbText.append(text);
   return $wbText;
 }
