@@ -7,6 +7,51 @@ var storage = window.localStorage,
     page_count_mentions = 1,
     fancyGroup = 0;
 
+/**
+* 接受来自background传来的未读条目信息,分别添加到导航栏里
+* 同步badge和导航栏上的未读条目数量
+*/
+chrome.runtime.onMessage.addListener(function(message, sender, sendResponse){
+  console.log(message);//传字符串得到字符串，传对象得到对象
+  // 未读微博数
+  if(message.status != 0){
+    if($("li:eq(0) .unreadCount").length == 0){
+      $("li:eq(0)").append("<div class='unreadCount'>"+message.status+"</div>");
+    } else {
+      $("li:eq(0) .unreadCount").text(message.status);
+    }
+  } else {
+    if($("li:eq(0) .unreadCount").length != 0){
+      $("li:eq(0) .unreadCount").remove();
+    }
+  }
+  // 未读@数
+  var mentions = message.mention_status + message.mention_cmt;
+  if(mentions != 0){
+    if($("li:eq(2) .unreadCount").length == 0){
+      $("li:eq(2)").append("<div class='unreadCount'>"+mentions+"</div>");
+    } else {
+      $("li:eq(2) .unreadCount").text(mentions);
+    }
+  } else {
+    if($("li:eq(2) .unreadCount").length != 0){
+      $("li:eq(2) .unreadCount").remove();
+    }
+  }
+  //未读评论数
+  if(message.cmt != 0){
+    if($("li:eq(3) .unreadCount").length == 0){
+      $("li:eq(3)").append("<div class='unreadCount'>"+message.cmt+"</div>");
+    } else {
+      $("li:eq(3) .unreadCount").text(message.cmt);
+    }
+  } else {
+    if($("li:eq(3) .unreadCount").length != 0){
+      $("li:eq(3) .unreadCount").remove();
+    }
+  }
+});
+
 $(function(){
   if(storage.getItem("access_token") == undefined || storage.getItem("access_token") == ""){
     alert("请先添加账户");
@@ -108,10 +153,10 @@ $(function(){
     }
   });
   fFriendsTimeline();
-  fUpdateUnreadCount();
-  window.setInterval(function(){
-    fUpdateUnreadCount();
-  }, 30000);
+  // fUpdateUnreadCount();
+  // window.setInterval(function(){
+  //   fUpdateUnreadCount();
+  // }, 30000);
 
   $("ul li:eq(1)").click(function(event){
     flag_pageYOff_friends = $(window).scrollTop();
@@ -510,53 +555,6 @@ function fWeiboGenerator(weibo, isRepost){
   $wbDetail.append($wbFunc);
   $wbContainer.append($wbFace, $wbDetail);
   return $wbContainer;
-}
-/**
-*在导航栏上添加各栏目的未读数目
-*/
-function fUpdateUnreadCount(){
-  if(storage.hasOwnProperty("unreadCount")){
-    if(storage.getItem("totalUnread") == "0"){
-      //set all unreadCount to 0
-      if($("li:eq(0) .unreadCount").length != 0){
-        $("li:eq(0) .unreadCount").remove();
-      }
-      if($("li:eq(2) .unreadCount").length != 0){
-        $("li:eq(2) .unreadCount").remove();
-      }
-      if($("li:eq(3) .unreadCount").length != 0){
-        $("li:eq(3) .unreadCount").remove();
-      }
-    } else {
-      // chrome.browserAction.setBadgeText({text: storage.getItem("totalUnread")});
-      var unreadCount = JSON.parse(storage.getItem("unreadCount"));
-      // 未读微博数
-      if(unreadCount.status != 0){
-        if($("li:eq(0) .unreadCount").length == 0){
-          $("li:eq(0)").append("<div class='unreadCount'>"+unreadCount.status+"</div>");
-        } else {
-          $("li:eq(0) .unreadCount").text(unreadCount.status);
-        }
-      } else {
-        if($("li:eq(0) .unreadCount").length != 0){
-          $("li:eq(0) .unreadCount").remove();
-        }
-      }
-      // 未读@数
-      var mentions = unreadCount.mention_status + unreadCount.mention_cmt;
-      if(mentions != 0){
-        if($("li:eq(2) .unreadCount").length == 0){
-          $("li:eq(2)").append("<div class='unreadCount'>"+mentions+"</div>");
-        } else {
-          $("li:eq(2) .unreadCount").text(mentions);
-        }
-      } else {
-        if($("li:eq(2) .unreadCount").length != 0){
-          $("li:eq(2) .unreadCount").remove();
-        }
-      }
-    }
-  }
 }
 /**
 *判断一条微博文本中用户@，话题#，网址http等各种链接，并添加链接标记

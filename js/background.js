@@ -8,7 +8,7 @@ if(storage.getItem("access_token") == null){
     chrome.browserAction.setIcon({path:"images/weibo_offline.jpg"});
     chrome.browserAction.setBadgeText({text: ""});
 }
-window.setInterval(function(){
+setInterval(function(){
     access_token = storage.getItem("access_token");
     uid = storage.getItem("uid");
     totalUnread = storage.getItem("totalUnread");
@@ -27,10 +27,15 @@ if(storage.getItem("faces") == null){
     xhr.open("get", "https://api.weibo.com/2/emotions.json?access_token="+access_token);
     xhr.send(null);
 }
-fUpdateIcon();
-window.setInterval(function(){
-    fUpdateIcon();
-}, 1000);
+// fUpdateIcon();
+// setInterval(fUpdateIcon(), 1000);
+setInterval(function(){
+    fGetUnreadCount();
+    if(storage.hasOwnProperty("unreadCount") && storage.getItem("totalUnread") !== "0"){
+        chrome.browserAction.setBadgeText({text: totalUnread+""});
+        chrome.runtime.sendMessage(unreadCount);
+    }
+}, 15000);
 
 function fGetUnreadCount(){
     var xhr = new XMLHttpRequest();
