@@ -61,8 +61,8 @@ $(function(){
     user = storage.getItem("user");
   }
 
-  $("#tabs").tabs();
-  $("button").button();
+  // $("#tabs").tabs();
+  // $("button").button();
   $("#btnNewWinPopup").click(function(){
     // chrome.windows.create({url: "popup.html", type: "popup", width: 653});
     window.open("popup.html", "_blank", "width: 653px");
@@ -446,8 +446,8 @@ function fWeiboGenerator(weibo, isRepost){
   $wbFrom.append(time+"    来自 "+weibo.source);
   var $wbHandle = $("<div class='wb-handle'></div>");
   //$wbHandle.html("转发("+weibo.reposts_count+") 评论("+weibo.comments_count+") 赞("+weibo.attitudes_count+")");
-  var $btnGroup = $("<div class='btn-group'></div>");
-  $btnGroup.append("<button class='btn'>转发"+weibo.reposts_count+"</button><button class='btn'>评论"+weibo.comments_count+"</button><button class='btn'>收藏</button>");
+  var $btnGroup = $("<div class='btn-group btn-group-xs'></div>");
+  $btnGroup.append("<button class='btn btn-default'>转发"+weibo.reposts_count+"</button><button class='btn btn-default'>评论"+weibo.comments_count+"</button><button class='btn btn-default'>收藏</button>");
   /*<button class='btn'>赞"+weibo.attitudes_count+"</button>*/
   // $aReposts = $("<a>转发("+weibo.reposts_count+")</a>");
   // $aComments = $("<a>评论("+weibo.comments_count+")</a>");

@@ -18,57 +18,59 @@
     </style>
   </head>
   <body>
-    <div id="tabs">
-      <ul>
-        <li><a href="#friends_timeline">首页</a></li>
-        <li><a href="#user_timeline">用户微博</a></li>
-        <li><a href="#mentions">提到我的</a><li>
-        <li><a href="#comments">评论</a></li>
-        <li><a href="#update">发布微博</a></li>
-      </ul>
-      <div class="toolbar">
-        <a id="btnNewWinPopup" href title="弹出到新窗口">
-          <img src="/images/new_win.png" />
-        </a>
-        <a id="btnRefresh" href title="获取最新">
-          <img src="/images/refresh.png" />
-        </a>
-      </div>
-      <div id="friends_timeline">
-        <!-- 
-        <div class="wb-container">
-          <div class="wb-face">
-            <a><img /></a>
+    <ul class="nav nav-tabs">
+      <li class="active"><a href="#friends_timeline" data-toggle="tab">首页</a></li>
+      <li><a href="#user_timeline" data-toggle="tab">用户微博</a></li>
+      <li><a href="#mentions" data-toggle="tab">提到我的</a><li>
+      <li><a href="#comments" data-toggle="tab">评论</a></li>
+      <li><a href="#update" data-toggle="tab">发布微博</a></li>
+    </ul>
+    <div class="toolbar">
+      <a id="btnNewWinPopup" href title="弹出到新窗口">
+        <img src="/images/new_win.png" />
+      </a>
+      <a id="btnRefresh" href title="获取最新">
+        <img src="/images/refresh.png" />
+      </a>
+    </div>
+    <div id="container">
+      <div class="tab-content">
+        <div class="tab-pane active" id="friends_timeline">
+          <!-- 
+          <div class="wb-container">
+            <div class="wb-face">
+              <a><img /></a>
+            </div>
+            <div class="wb-detail">
+                <div class="username"></div>
+                <div class="wb-text"></div>
+                <div class="wb-media-list"></div>//图片视频
+                <div class="wb-media-expand"></div>//被转发的微博
+                <div class="wb-func">
+                  <div class="wb-from"></div>
+                  <div class="wb-handle"></div>
+                </div>
+            </div>
           </div>
-          <div class="wb-detail">
-              <div class="username"></div>
-              <div class="wb-text"></div>
-              <div class="wb-media-list"></div>//图片视频
-              <div class="wb-media-expand"></div>//被转发的微博
-              <div class="wb-func">
-                <div class="wb-from"></div>
-                <div class="wb-handle"></div>
-              </div>
-          </div>
+        -->
         </div>
-      -->
-      </div>
-      <div id="user_timeline"></div>
-      <div id="mentions"></div>
-      <div id="comments"></div>
-      <div id="update">
-        <div class="update-container">
-          <br/>
-          <textarea></textarea><br/>
-          <div class="hint"></div>
-          <button type="button" class="update">发布</button>
-          <select>
-            <option value="0">公开</option>
-            <option value="1">仅自己可见</option>
-            <option value="2">密友可见</option>
-            <option value="3">指定分组可见</option>
-          </select>
-          <div class="clear"></div>
+        <div class="tab-pane" id="user_timeline"></div>
+        <div class="tab-pane" id="mentions"></div>
+        <div class="tab-pane" id="comments"></div>
+        <div class="tab-pane" id="update">
+          <div class="update-container">
+            <br/>
+            <textarea></textarea><br/>
+            <div class="hint"></div>
+            <button type="button" class="btn btn-sm update">发布</button>
+            <select>
+              <option value="0">公开</option>
+              <option value="1">仅自己可见</option>
+              <option value="2">密友可见</option>
+              <option value="3">指定分组可见</option>
+            </select>
+            <div class="clear"></div>
+          </div>
         </div>
       </div>
 

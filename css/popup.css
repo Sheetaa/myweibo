@@ -4,35 +4,35 @@ body {
   width: 620px;
   text-align: center;
 }
-ul {
+#container {
+  margin: 0 auto;
+  width: 560px;
+  text-align: left;
+}
+.nav {
   position: fixed;
-  top: 0px;
-  /*width: 620px;*/
-  background-color: white;
-  z-index: 999;
+  width: 620px;
+  background-color: #f8f8f8;
+  z-index: 998;
 }
 .unreadCount {
   position: absolute;
   font-size: 15px;
   padding: 0 2px 0 2px;
   border-radius: 3px;
-  top: -10px;
-  right: -2px;
+  top: -1px;
+  right: 0px;
   background-color: red;
   color: white;
   z-index: 999;
 }
 .toolbar {
   position: fixed;
+  margin: 10px;
   top: 0px;
   right: 0px;
-  width: 620px;
-  height: 40px;
-  background-color: white;
-  z-index: 998;
-}
-.toolbar a {
-  float: right;
+  background-color: #f8f8f8;
+  z-index: 999;
 }
 a.name-url {
   color: green;
@@ -50,13 +50,10 @@ a:link {text-decoration: none;}
 a:visited {text-decoration: none;}
 a:hover {text-decoration: underline;}
 a:active {text-decoration: underline;}
-#friends_timeline, #user_timeline, #mentions, #comments {
+#friends_timeline, #user_timeline, #mentions, #comments, #update {
   float: left;
   margin-top: 40px;
   text-align: left;
-}
-#update {
-  margin-top: 40px;
 }
 .wb-container {
   float: left;
