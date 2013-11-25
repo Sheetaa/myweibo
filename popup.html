@@ -58,7 +58,7 @@
         <div class="tab-pane" id="mentions"></div>
         <div class="tab-pane" id="comments"></div>
         <div class="tab-pane" id="update">
-          <div id="update-container">
+          <!-- <div id="update-container">
             <br/>
             <textarea></textarea><br/>
             <div class="hint"></div>
@@ -70,7 +70,7 @@
               <option value="3">指定分组可见</option>
             </select>
             <div class="clear"></div>
-          </div>
+          </div> -->
         </div>
         <div class="clear"></div>
       </div>
@@ -84,15 +84,25 @@
           <div class="tip-intro"></div>
         </div>
       </div> -->
+      <div class="modal fade updateDialog">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-body">
+              <h5 class="dialog-header"></h5>
+              <textarea></textarea><br/>
+              <div class="hint"></div>
+              <button type="button" class="btn btn-primary btn-sm btn-publish" id="btn-publish">发布</button>
+              <button type="button" class="btn btn-default btn-sm btn-publish" data-dismiss="modal">关闭</button>
+              <div class="clear"></div>
+            </div>
+          </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
+      </div><!-- /.modal -->
       <div class="modal fade commentsDialog">
         <div class="modal-dialog">
           <div class="modal-content">
             <div class="modal-body">
               <h5 class="dialog-header"></h5>
-              <div style="display:none;">
-                <input type="text" class="wbId" value="0" />
-                <input type="text" class="wbUser" value="0" />
-              </div>
               <textarea></textarea><br/>
               <div class="hint"></div>
               <div class="option"></div>
@@ -108,14 +118,25 @@
           <div class="modal-content">
             <div class="modal-body">
               <h5 class="dialog-header"></h5>
-              <div style="display:none;">
-                <input type="text" class="wbId" value="0" />
-                <input type="text" class="wbUser" value="0" />
-              </div>
               <textarea></textarea><br/>
               <div class="hint"></div>
               <div class="option"></div>
               <button type="button" class="btn btn-primary btn-sm btn-publish" id="btn-repost">转发</button>
+              <button type="button" class="btn btn-default btn-sm btn-publish" data-dismiss="modal">关闭</button>
+              <div class="clear"></div>
+            </div>
+          </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
+      </div><!-- /.modal -->
+      <div class="modal fade replyDialog">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-body">
+              <h5 class="dialog-header"></h5>
+              <textarea></textarea><br/>
+              <!-- <div class="hint"></div>
+              <div class="option"></div> -->
+              <button type="button" class="btn btn-primary btn-sm btn-publish" id="btn-reply">回复</button>
               <button type="button" class="btn btn-default btn-sm btn-publish" data-dismiss="modal">关闭</button>
               <div class="clear"></div>
             </div>

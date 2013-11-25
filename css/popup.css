@@ -97,7 +97,7 @@ a:active {text-decoration: underline;}
   min-width: 466px;
   margin-top: 10px;
   padding: 5px;
-  background-color: #DBDBDB;
+  background-color: #f8f8f8;
 }
 .wb-media-expand .wb-detail {
   width: 100%;
@@ -128,9 +128,6 @@ textarea {
 }
 .hint {
   text-align: left;
-}
-.update {
-  float: right;
 }
 select {
   float: right;

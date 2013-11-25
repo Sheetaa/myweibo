@@ -173,13 +173,26 @@ $(function(){
       $("li:eq(2) .unreadCount").remove();
     }
   });
-  $("ul li:eq(3)").click(function(){
+  // $("ul li:eq(3)").click(function(){
+  //   $("#comments").html("");
+  //   page_count_comments = 1;
+  //   fComments();
+  //   if($("li:eq(3) .unreadCount").length != 0){
+  //     $("li:eq(3) .unreadCount").remove();
+  //   }
+  // });
+  // 不知道为什么评论tab用@tab一样的方法却完全不起作用，绑定的click事件没有执行，只能用bootstrap提供的接口实现
+  $("a[data-toggle='tab']:eq(3)").on("show.bs.tab", function(event){
     $("#comments").html("");
     page_count_comments = 1;
     fComments();
     if($("li:eq(3) .unreadCount").length != 0){
       $("li:eq(3) .unreadCount").remove();
     }
+  });
+  $("a[data-toggle='tab']:eq(4)").on("show.bs.tab", function(event){
+    $("#user_timeline").tab("show");
+    $(".updateDialog").modal("show");
   });
   $("div.wb-container a[href=#user_timeline]").click(function(){
     $("#user_timeline").html("");
@@ -289,8 +302,6 @@ function fUserTimeline(screen_name){
     },
     success: function(data){
       var statuses = data.statuses;
-      console.log(screen_name);
-      console.log(statuses);
       for (var i = 0; i < statuses.length; i++) {
         var $wbContainer = fWeiboGenerator(statuses[i], false, false);
         $("#user_timeline").append($wbContainer);
@@ -336,9 +347,7 @@ function fComments(){
       page: page_count_comments++
     },
     success: function(data){
-      console.log(data);
       var comments = data.comments;
-      console.log(comments);
       for (var i = 0; i < comments.length; i++) {
         var $wbContainer = fWeiboGenerator(comments[i], false, true);
         $("#comments").append($wbContainer);
@@ -475,14 +484,47 @@ function fWeiboGenerator(weibo, isRepost, isComment){
   var $wbHandle = $("<div class='wb-handle'></div>");
   var $btnGroup = $("<div class='btn-group btn-group-xs'></div>");
   if(isComment == true){
-    $btnGroup.append("<button class='btn btn-default' data-toggle='modal' data-target=''>回复<button class='btn btn-default' data-toggle='modal' data-target=''>删除");
+    $btnGroup.append("<button class='btn btn-default' data-toggle='modal' data-target='.replyDialog'>回复</button><button class='btn btn-default'>删除</button>");
+    $(".btn:eq(0)", $btnGroup).click(function(){
+      var $reply = $("div.replyDialog");
+      $(".dialog-header", $reply).html("回复 @"+user.screen_name+" 的微博");
+      $("#btn-reply", $reply).click(function(){
+        $.ajax({
+          url: 'https://api.weibo.com/2/comments/reply.json',
+          type: 'post',
+          dataType: 'json',
+          data: {
+            access_token: access_token,
+            cid: weibo.id,
+            id: weibo.status.id,
+            comment: $("textarea", $reply).val()
+          },
+          success: function(data){
+            $(".replyDialog").modal("hide");
+            alert("reply success");
+          }
+        });
+      });
+    });
+    $(".btn:eq(1)", $btnGroup).click(function(){
+      $.ajax({
+        url: 'https://api.weibo.com/2/comments/destroy.json',
+        type: 'post',
+        dataType: 'json',
+        data: {
+          access_token: access_token,
+          cid: weibo.id
+        },
+        success: function(data){
+          alert("delete success");
+        }
+      });
+    });
   } else {
     $btnGroup.append("<button class='btn btn-default' data-toggle='modal' data-target='.repostDialog'>转发"+weibo.reposts_count+"</button><button class='btn btn-default' data-toggle='modal' data-target='.commentsDialog'>评论"+weibo.comments_count+"</button><button class='btn btn-default'>收藏</button>");
     $(".btn:eq(0)", $btnGroup).click(function(){
       var $repost = $("div.repostDialog");
       $(".dialog-header", $repost).html("转发 @"+user.screen_name+" 的微博");
-      $(".wbId", $repost).attr("value", weibo.id);
-      $(".wbUser", $repost).attr("value", user.screen_name);
       // $repost.dialog("option", "title", "转发 @"+user.screen_name+" 的微博");
       if(weibo.retweeted_status != undefined){
         $("textarea", $repost).val("//@"+user.screen_name+"："+weibo.text);
@@ -507,13 +549,11 @@ function fWeiboGenerator(weibo, isRepost, isComment){
           $(".hint", $repost).html("超过140字数限制").css("color", "red");
         }
       });
-      $("textarea", $repost).focus();
       $(".option", $repost).html("<input type='checkbox' id='rpcom' /><label for='rpcom'>转发的同时评论该微博</label><br/>");
       if(weibo.retweeted_status != undefined){
         $(".option", $repost).append("<input type='checkbox' id='rpcomrt' /><label for='rpcomrt'>转发的同时评论原微博</label>");
       }
       $("#btn-repost", $repost).click(function(){
-        var id = $(".wbId", this).val();
         var status = $("textarea", this).val();
         var is_comment = 0;
         if($("#rpcomrt", this).length == 0 && $("#rpcom", this)[0].checked){
@@ -535,7 +575,7 @@ function fWeiboGenerator(weibo, isRepost, isComment){
           async: false,
           data: {
             access_token: access_token,
-            id: id,
+            id: weibo.id,
             status: status,
             is_comment: is_comment
           },
@@ -550,8 +590,6 @@ function fWeiboGenerator(weibo, isRepost, isComment){
     });
     $(".btn:eq(1)", $btnGroup).click(function(){
       var $comments = $("div.commentsDialog");
-      $(".wbId", $comments).attr("value", weibo.id);
-      $(".wbUser", $comments).attr("value", user.screen_name);
       $(".dialog-header", $comments).html("评论 @"+user.screen_name+" 的微博");
       // $comments.dialog("option", "title", "评论 @"+user.screen_name+" 的微博");
       $("textarea", $comments).val("");
@@ -572,7 +610,6 @@ function fWeiboGenerator(weibo, isRepost, isComment){
         $(".option", $comments).append("<input type='checkbox' id='comretweeted' /><label for='comretweeted'>评论原微博</label>");
       }
       $("#btn-comment", $comments).click(function(){
-        var id = $(".wbId", $comments).val();
         var comment = $("textarea", $comments).val();
         var comment_ori = 0;
         if($("#comretweeted", $comments).length !== 0 && $("#comretweeted", $comments)[0].checked){
@@ -585,7 +622,7 @@ function fWeiboGenerator(weibo, isRepost, isComment){
           async: false,
           data: {
             access_token: access_token,
-            id: id,
+            id: weibo.id,
             comment: comment,
             comment_ori: comment_ori
           },
@@ -602,6 +639,9 @@ function fWeiboGenerator(weibo, isRepost, isComment){
       $("textarea", this).focus();
     });
     $(".repostDialog").on("shown.bs.modal", function(e){
+      $("textarea", this).focus();
+    });
+    $(".replyDialog").on("shown.bs.modal", function(e){
       $("textarea", this).focus();
     });
     if(weibo.favourited){
