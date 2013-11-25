@@ -5,6 +5,7 @@ var storage = window.localStorage,
     page_count_friends = 1,//公共微博的加载页数
     page_count_user = 1,//用户微博的加载页数
     page_count_mentions = 1,
+    page_count_comments = 1,
     fancyGroup = 0;
 
 /**
@@ -64,8 +65,8 @@ $(function(){
   // $("#tabs").tabs();
   // $("button").button();
   $("#btnNewWinPopup").click(function(){
-    // chrome.windows.create({url: "popup.html", type: "popup", width: 653});
-    window.open("popup.html", "_blank", "width: 653px");
+    chrome.windows.create({url: "popup.html", type: "popup", width: 620, height: 700});
+    // window.open("popup.html", "_blank", "width=580");
   });
   $("#btnRefresh").click(function(){
     $("#friends_timeline").html("");
@@ -75,90 +76,87 @@ $(function(){
       $("li:eq(0) .unreadCount").remove();
     }
   });
-  $("div.commentsDialog").dialog({
-    autoOpen: false,
-    closeOnEscape: true,
-    height: "auto",
-    width: "auto",
-    modal: true,
-    buttons: {
-      "评论": function(){
-        var id = $(".wbId", this).val();
-        var comment = $("textarea", this).val();
-        var comment_ori = 0;
-        if($("#comretweeted", this).length !== 0 && $("#comretweeted", this)[0].checked){
-            comment_ori = 1;
-        }
-        $.ajax({
-          url: 'https://api.weibo.com/2/comments/create.json',
-          type: 'post',
-          dataType: 'json',
-          async: false,
-          data: {
-            access_token: access_token,
-            id: id,
-            comment: comment,
-            comment_ori: comment_ori
-          },
-          success: function(data){
-            //console.log(data);
-            alert("comment success");
-          }
-        });
-        $(this).dialog("close");
-      }
-    }
-  });
-  $("div.repostDialog").dialog({
-    autoOpen: false,
-    closeOnEscape: true,
-    height: "auto",
-    width: "auto",
-    modal: true,
-    buttons: {
-      "转发": function(){
-        var id = $(".wbId", this).val();
-        var status = $("textarea", this).val();
-        var is_comment = 0;
-        if($("#rpcomrt", this).length == 0 && $("#rpcom", this)[0].checked){
-          is_comment = 1;
-        }
-        if($("#rpcomrt", this).length !== 0){
-          if($("#rpcom", this)[0].checked == true && $("#rpcomrt", this)[0].checked == false){
-            is_comment = 1;
-          } else if($("#rpcom", this)[0].checked == false && $("#rpcomrt", this)[0].checked == true){
-            is_comment = 2;
-          } else if($("#rpcom", this)[0].checked && $("#rpcomrt", this)[0].checked){
-            is_comment = 3;
-          }
-        }
-        $.ajax({
-          url: 'https://api.weibo.com/2/statuses/repost.json',
-          type: 'post',
-          dataType: 'json',
-          async: false,
-          data: {
-            access_token: access_token,
-            id: id,
-            status: status,
-            is_comment: is_comment
-          },
-          success: function(data){
-            //console.log(data);
-            alert("repost success");
-          }
-        });
-        $(this).dialog("close");
-      }
-    }
-  });
+  // 这是jQuery UI 弃之 改用Bootstrap
+  // $("div.commentsDialog").dialog({
+  //   autoOpen: false,
+  //   closeOnEscape: true,
+  //   height: "auto",
+  //   width: "auto",
+  //   modal: true,
+  //   buttons: {
+  //     "评论": function(){
+  //       var id = $(".wbId", this).val();
+  //       var comment = $("textarea", this).val();
+  //       var comment_ori = 0;
+  //       if($("#comretweeted", this).length !== 0 && $("#comretweeted", this)[0].checked){
+  //           comment_ori = 1;
+  //       }
+  //       $.ajax({
+  //         url: 'https://api.weibo.com/2/comments/create.json',
+  //         type: 'post',
+  //         dataType: 'json',
+  //         async: false,
+  //         data: {
+  //           access_token: access_token,
+  //           id: id,
+  //           comment: comment,
+  //           comment_ori: comment_ori
+  //         },
+  //         success: function(data){
+  //           //console.log(data);
+  //           alert("comment success");
+  //         }
+  //       });
+  //       $(this).dialog("close");
+  //     }
+  //   }
+  // });
+  // $("div.repostDialog").dialog({
+  //   autoOpen: false,
+  //   closeOnEscape: true,
+  //   height: "auto",
+  //   width: "auto",
+  //   modal: true,
+  //   buttons: {
+  //     "转发": function(){
+  //       var id = $(".wbId", this).val();
+  //       var status = $("textarea", this).val();
+  //       var is_comment = 0;
+  //       if($("#rpcomrt", this).length == 0 && $("#rpcom", this)[0].checked){
+  //         is_comment = 1;
+  //       }
+  //       if($("#rpcomrt", this).length !== 0){
+  //         if($("#rpcom", this)[0].checked == true && $("#rpcomrt", this)[0].checked == false){
+  //           is_comment = 1;
+  //         } else if($("#rpcom", this)[0].checked == false && $("#rpcomrt", this)[0].checked == true){
+  //           is_comment = 2;
+  //         } else if($("#rpcom", this)[0].checked && $("#rpcomrt", this)[0].checked){
+  //           is_comment = 3;
+  //         }
+  //       }
+  //       $.ajax({
+  //         url: 'https://api.weibo.com/2/statuses/repost.json',
+  //         type: 'post',
+  //         dataType: 'json',
+  //         async: false,
+  //         data: {
+  //           access_token: access_token,
+  //           id: id,
+  //           status: status,
+  //           is_comment: is_comment
+  //         },
+  //         success: function(data){
+  //           //console.log(data);
+  //           alert("repost success");
+  //         }
+  //       });
+  //       $(this).dialog("close");
+  //     }
+  //   }
+  // });
   fFriendsTimeline();
-  // fUpdateUnreadCount();
-  // window.setInterval(function(){
-  //   fUpdateUnreadCount();
-  // }, 30000);
 
-  $("ul li:eq(1)").click(function(event){
+  $("ul li:eq(1)").click(function(){
     flag_pageYOff_friends = $(window).scrollTop();
     $("#user_timeline").html("");
     page_count_user = 1;
@@ -173,6 +171,14 @@ $(function(){
     fMentions();
     if($("li:eq(2) .unreadCount").length != 0){
       $("li:eq(2) .unreadCount").remove();
+    }
+  });
+  $("ul li:eq(3)").click(function(){
+    $("#comments").html("");
+    page_count_comments = 1;
+    fComments();
+    if($("li:eq(3) .unreadCount").length != 0){
+      $("li:eq(3) .unreadCount").remove();
     }
   });
   $("div.wb-container a[href=#user_timeline]").click(function(){
@@ -258,7 +264,7 @@ function fFriendsTimeline(){
     success: function(data){
       var statuses = data.statuses;
       for (var i = 0; i < statuses.length; i++) {
-        var $wbContainer = fWeiboGenerator(statuses[i], false);
+        var $wbContainer = fWeiboGenerator(statuses[i], false, false);
         $("#friends_timeline").append($wbContainer);
         fWeiboHover();
       }
@@ -286,7 +292,7 @@ function fUserTimeline(screen_name){
       console.log(screen_name);
       console.log(statuses);
       for (var i = 0; i < statuses.length; i++) {
-        var $wbContainer = fWeiboGenerator(statuses[i], false);
+        var $wbContainer = fWeiboGenerator(statuses[i], false, false);
         $("#user_timeline").append($wbContainer);
         fWeiboHover();
       }
@@ -309,8 +315,33 @@ function fMentions(){
     success: function(data){
       var statuses = data.statuses;
       for (var i = 0; i < statuses.length; i++) {
-        var $wbContainer = fWeiboGenerator(statuses[i], false);
+        var $wbContainer = fWeiboGenerator(statuses[i], false, false);
         $("#mentions").append($wbContainer);
+        fWeiboHover();
+      }
+    }
+  });
+}
+/**
+*得到当前登陆用户的评论
+*/
+function fComments(){
+  $.ajax({
+    url: 'https://api.weibo.com/2/comments/timeline.json',
+    type: 'get',
+    dataType: 'json',
+    async: false,
+    data: {
+      access_token: access_token,
+      page: page_count_comments++
+    },
+    success: function(data){
+      console.log(data);
+      var comments = data.comments;
+      console.log(comments);
+      for (var i = 0; i < comments.length; i++) {
+        var $wbContainer = fWeiboGenerator(comments[i], false, true);
+        $("#comments").append($wbContainer);
         fWeiboHover();
       }
     }
@@ -323,21 +354,21 @@ function fMentions(){
 function fWeiboHover(){
   $("div.wb-container").hover(function(){
     $("div.username a", this).addClass("name-url");
+    $("div.wb-text a", this).addClass("text-url");
     $("div.wb-from a", this).addClass("from-url");
     $("div.wb-handle a", this).addClass("name-url");
-    $("div.wb-text a", this).addClass("text-url");
   }, function(){
     $("div.username a", this).removeClass("name-url");
+    $("div.wb-text a", this).removeClass("text-url");
     $("div.wb-from a", this).removeClass("from-url");
     $("div.wb-handle a", this).removeClass("name-url");
-    $("div.wb-text a", this).removeClass("text-url");
   });
 }
 
 /**
 *生成一条微博的完整内容和格式
 **/
-function fWeiboGenerator(weibo, isRepost){
+function fWeiboGenerator(weibo, isRepost, isComment){
   var user = {
     id: weibo.user.id,
     screen_name: weibo.user.screen_name,
@@ -351,22 +382,20 @@ function fWeiboGenerator(weibo, isRepost){
     profile_image_url: weibo.user.profile_image_url,
     profile_url: weibo.user.profile_url
   };
-  var tip = "<div class='tip'><div class='tip-face'><img src='"+user.profile_image_url+"'/></div>" +
-            "<div class='tip-right'><div class='tip-name'><strong>"+user.screen_name+"</strong>";
-  if(user.verified){
-    tip += "<img src='images/verified.gif' />";
-  }
-  tip += "</div>" + "<div class='tip-info'><strong>微博</strong> "+user.statuses_count+" <strong>粉丝</strong> "+user.followers_count+" <strong>关注</strong> "+user.friends_count+" <strong>收藏</strong> "+user.favourites_count+"</div>";
-  if(user.description.length == 0)tip += "</div></div>";
-  else tip += "<div class='tip-intro'><strong>简介</strong> "+user.description+"</div></div></div>";
+  // var tip = "<div class='tip'><div class='tip-face'><img src='"+user.profile_image_url+"'/></div>" +
+  //           "<div class='tip-right'><div class='tip-name'>"+user.screen_name;
+  // if(user.verified){
+  //   tip += "<img src='images/verified.gif' />";
+  // }
+  // tip += "</div>" + "<div class='tip-info'><strong>微博</strong> "+user.statuses_count+" <strong>粉丝</strong> "+user.followers_count+" <strong>关注</strong> "+user.friends_count+" <strong>收藏</strong> "+user.favourites_count+"</div>";
+  // if(user.description.length == 0)tip += "</div></div>";
+  // else tip += "<div class='tip-intro'><strong>简介</strong> "+user.description+"</div></div></div>";
 
   var $wbContainer;
-  if(isRepost == false)$wbContainer = $("<div class='wb-container'></div>");
-  else $wbContainer = $("<div class='wb-media-expand'></div>");
-  var $wbDetail = $("<div class='wb-detail'></div>");
+  if(isComment == true || (isComment == false && isRepost == false)){
+    $wbContainer = $("<div class='wb-container'></div>");
 
-  //每条微博的头像部分
-  if(isRepost == false){
+    //每条微博的头像部分
     var $wbFace = $("<div class='wb-face'></div>");
     var $aFace = $("<a></a>");
     $aFace.attr({
@@ -378,11 +407,13 @@ function fWeiboGenerator(weibo, isRepost){
       title: user.screen_name,
       src: user.profile_image_url
     });
-    $aFace.tooltip({content: tip});
     $wbFace.append($aFace);
+  } else {
+    $wbContainer = $("<div class='wb-media-expand'></div>");
   }
 
   //微博主体部分
+  var $wbDetail = $("<div class='wb-detail'></div>");
   var $aName = $("<a></a>");
   if(isRepost == false)$aName.append(user.screen_name);
   else $aName.append("@"+user.screen_name);
@@ -392,7 +423,6 @@ function fWeiboGenerator(weibo, isRepost){
     href: "http://www.weibo.com/"+user.profile_url,
     target: "_blank"
   });
-  $aName.tooltip({content: tip});// ?为什么这一句不起作用
   var $username = $("<div class='username'></div>").append($aName);
   if(user.verified){
     $username.append("<img src='images/verified.gif' />");
@@ -402,153 +432,213 @@ function fWeiboGenerator(weibo, isRepost){
   $wbDetail.append($wbText);
 
   //微博中的图片
-  var pics = weibo.pic_urls;
-  if(pics.length !== 0){
-    var $wbPics = $("<div class='picture'></div>");
-    //console.log(pics.length);
-    for (var i = 0, m = pics.length; i < m; i++) {
-      var thumbnail = pics[i].thumbnail_pic;
-      var original = thumbnail.replace(/thumbnail/, "large");
-      $wbPics.append("<a class='fancy' rel='group"+fancyGroup+"' href='"+original+"'><img src='"+thumbnail+"' /></a>");
-      //$wbPics.append("<img src='"+pics[i].thumbnail_pic+"' />");
-    }
-    fancyGroup++;
-    $("a.fancy").fancybox({
-      helpers : {
-        overlay : {
-          css : {'background' : 'rgba(220, 220, 220, 0.8)'}
-        },
-        thumbs  : {
-          width : 50,
-          height  : 50
-        }
+  if(isComment == false){
+    var pics = weibo.pic_urls;
+    if(pics.length !== 0){
+      var $wbPics = $("<div class='picture'></div>");
+      //console.log(pics.length);
+      for (var i = 0, m = pics.length; i < m; i++) {
+        var thumbnail = pics[i].thumbnail_pic;
+        var original = thumbnail.replace(/thumbnail/, "large");
+        $wbPics.append("<a class='fancy' rel='group"+fancyGroup+"' href='"+original+"'><img src='"+thumbnail+"' /></a>");
+        //$wbPics.append("<img src='"+pics[i].thumbnail_pic+"' />");
       }
-    });
-    // $("img", $wbPics).bind("mousedown", function(){
-    //   var thumbnail = $(this).attr("src");
-    //   var original = thumbnail.replace(/thumbnail/, "large");
-    //   $("div.original-picture").html("<img src='"+original+"'/>");
-    //   $("div.original-picture").dialog("open");
-    // })
-    $wbDetail.append($wbPics);
+      fancyGroup++;
+      $("a.fancy").fancybox({
+        helpers : {
+          overlay : {
+            css : {'background' : 'rgba(220, 220, 220, 0.8)'}
+          },
+          thumbs  : {
+            width : 50,
+            height  : 50
+          }
+        }
+      });
+      $wbDetail.append($wbPics);
+    }
   }
 
   //被转发的原微博
-  if(weibo.retweeted_status != undefined){
-    var $wbMediaExpand = fWeiboGenerator(weibo.retweeted_status, true);
-    $wbDetail.append($wbMediaExpand);
+  var $wbMediaExpand;
+  if(isComment == true){
+    $wbMediaExpand = fWeiboGenerator(weibo.status, true, false);
+  } else if (isComment == false && weibo.retweeted_status != undefined){
+    $wbMediaExpand = fWeiboGenerator(weibo.retweeted_status, true, false);
   }
-
+  $wbDetail.append($wbMediaExpand);
 
   //微博时间来源和操作部分
   var $wbFrom = $("<div class='wb-from'></div>");
   var time = weibo.created_at.substring(4, weibo.created_at.length-11);
   $wbFrom.append(time+"    来自 "+weibo.source);
   var $wbHandle = $("<div class='wb-handle'></div>");
-  //$wbHandle.html("转发("+weibo.reposts_count+") 评论("+weibo.comments_count+") 赞("+weibo.attitudes_count+")");
   var $btnGroup = $("<div class='btn-group btn-group-xs'></div>");
-  $btnGroup.append("<button class='btn btn-default'>转发"+weibo.reposts_count+"</button><button class='btn btn-default'>评论"+weibo.comments_count+"</button><button class='btn btn-default'>收藏</button>");
-  /*<button class='btn'>赞"+weibo.attitudes_count+"</button>*/
-  // $aReposts = $("<a>转发("+weibo.reposts_count+")</a>");
-  // $aComments = $("<a>评论("+weibo.comments_count+")</a>");
-  // $aAttitudes = $("<a>赞("+weibo.attitudes_count+")</a>");
-  // $wbHandle.append($aReposts).append("  |  ").append($aComments).append("  |  ").append($aAttitudes);
-  $(".btn:eq(0)", $btnGroup).click(function(){
-    var $repost = $("div.repostDialog");
-    $(".wbId", $repost).attr("value", weibo.id);
-    $(".wbUser", $repost).attr("value", user.screen_name);
-    $repost.dialog("option", "title", "转发 @"+user.screen_name+" 的微博");
-    if(weibo.retweeted_status != undefined){
-      $("textarea", $repost).val("//@"+user.screen_name+"："+weibo.text);
-      var count = 140 - $("textarea", $repost).val().length;
-      if(count >= 0){
-        $(".hint", $repost).html("你还可以输入<strong>"+count+"</strong>个字").css("color", "grey");
-      } else {
-        $(".hint", $repost).html("超过140字数限制").css("color", "red");
-      }
-    } else {
-      $("textarea", $repost).val("");
-      $(".hint", $repost).html("你还可以输入<strong>140</strong>个字").css("color", "grey");
-
-    }
-    $("textarea", $repost).on("input", function(event){
-      // console.log(event);
-      // console.log($(this));
-      var count = 140 - $(this).val().length;
-      if(count >= 0){
-        if($(".hint", $repost).css("color") == "rgb(255, 0, 0)"){
-          $(".hint", $repost).html("你还可以输入<strong>140</strong>个字").css("color", "grey");
+  if(isComment == true){
+    $btnGroup.append("<button class='btn btn-default' data-toggle='modal' data-target=''>回复<button class='btn btn-default' data-toggle='modal' data-target=''>删除");
+  } else {
+    $btnGroup.append("<button class='btn btn-default' data-toggle='modal' data-target='.repostDialog'>转发"+weibo.reposts_count+"</button><button class='btn btn-default' data-toggle='modal' data-target='.commentsDialog'>评论"+weibo.comments_count+"</button><button class='btn btn-default'>收藏</button>");
+    $(".btn:eq(0)", $btnGroup).click(function(){
+      var $repost = $("div.repostDialog");
+      $(".dialog-header", $repost).html("转发 @"+user.screen_name+" 的微博");
+      $(".wbId", $repost).attr("value", weibo.id);
+      $(".wbUser", $repost).attr("value", user.screen_name);
+      // $repost.dialog("option", "title", "转发 @"+user.screen_name+" 的微博");
+      if(weibo.retweeted_status != undefined){
+        $("textarea", $repost).val("//@"+user.screen_name+"："+weibo.text);
+        var count = 140 - $("textarea", $repost).val().length;
+        if(count >= 0){
+          $(".hint", $repost).html("你还可以输入<strong>"+count+"</strong>个字").css("color", "grey");
+        } else {
+          $(".hint", $repost).html("超过140字数限制").css("color", "red");
         }
-        $(".hint strong", $repost).text(count);
       } else {
-        $(".hint", $repost).html("超过140字数限制").css("color", "red");
+        $("textarea", $repost).val("");
+        $(".hint", $repost).html("你还可以输入<strong>140</strong>个字").css("color", "grey");
+      }
+      $("textarea", $repost).on("input", function(event){
+        var count = 140 - $(this).val().length;
+        if(count >= 0){
+          if($(".hint", $repost).css("color") == "rgb(255, 0, 0)"){
+            $(".hint", $repost).html("你还可以输入<strong>140</strong>个字").css("color", "grey");
+          }
+          $(".hint strong", $repost).text(count);
+        } else {
+          $(".hint", $repost).html("超过140字数限制").css("color", "red");
+        }
+      });
+      $("textarea", $repost).focus();
+      $(".option", $repost).html("<input type='checkbox' id='rpcom' /><label for='rpcom'>转发的同时评论该微博</label><br/>");
+      if(weibo.retweeted_status != undefined){
+        $(".option", $repost).append("<input type='checkbox' id='rpcomrt' /><label for='rpcomrt'>转发的同时评论原微博</label>");
+      }
+      $("#btn-repost", $repost).click(function(){
+        var id = $(".wbId", this).val();
+        var status = $("textarea", this).val();
+        var is_comment = 0;
+        if($("#rpcomrt", this).length == 0 && $("#rpcom", this)[0].checked){
+          is_comment = 1;
+        }
+        if($("#rpcomrt", this).length !== 0){
+          if($("#rpcom", this)[0].checked == true && $("#rpcomrt", this)[0].checked == false){
+            is_comment = 1;
+          } else if($("#rpcom", this)[0].checked == false && $("#rpcomrt", this)[0].checked == true){
+            is_comment = 2;
+          } else if($("#rpcom", this)[0].checked && $("#rpcomrt", this)[0].checked){
+            is_comment = 3;
+          }
+        }
+        $.ajax({
+          url: 'https://api.weibo.com/2/statuses/repost.json',
+          type: 'post',
+          dataType: 'json',
+          async: false,
+          data: {
+            access_token: access_token,
+            id: id,
+            status: status,
+            is_comment: is_comment
+          },
+          success: function(data){
+            $(".repostDialog").modal("hide");
+            alert("repost success");
+          }
+        });
+        // $(this).dialog("close");
+      });
+      // $repost.dialog("open");
+    });
+    $(".btn:eq(1)", $btnGroup).click(function(){
+      var $comments = $("div.commentsDialog");
+      $(".wbId", $comments).attr("value", weibo.id);
+      $(".wbUser", $comments).attr("value", user.screen_name);
+      $(".dialog-header", $comments).html("评论 @"+user.screen_name+" 的微博");
+      // $comments.dialog("option", "title", "评论 @"+user.screen_name+" 的微博");
+      $("textarea", $comments).val("");
+      $(".hint", $comments).html("你还可以输入<strong>140</strong>个字").css("color", "grey");
+      $("textarea", $comments).on("input", function(event){
+        var count = 140 - $(this).val().length;
+        if(count >= 0){
+          if($(".hint", $comments).css("color") == "rgb(255, 0, 0)"){
+            $(".hint", $comments).html("你还可以输入<strong>140</strong>个字").css("color", "grey");
+          }
+          $(".hint strong", $comments).text(count);
+        } else {
+          $(".hint", $comments).html("超过140字数限制").css("color", "red");
+        }
+      });
+      $(".option", $comments).html("");
+      if(weibo.retweeted_status !== undefined){
+        $(".option", $comments).append("<input type='checkbox' id='comretweeted' /><label for='comretweeted'>评论原微博</label>");
+      }
+      $("#btn-comment", $comments).click(function(){
+        var id = $(".wbId", $comments).val();
+        var comment = $("textarea", $comments).val();
+        var comment_ori = 0;
+        if($("#comretweeted", $comments).length !== 0 && $("#comretweeted", $comments)[0].checked){
+            comment_ori = 1;
+        }
+        $.ajax({
+          url: 'https://api.weibo.com/2/comments/create.json',
+          type: 'post',
+          dataType: 'json',
+          async: false,
+          data: {
+            access_token: access_token,
+            id: id,
+            comment: comment,
+            comment_ori: comment_ori
+          },
+          success: function(data){
+            //console.log(data);
+            $(".commentsDialog").modal("hide");
+            alert("comment success");
+          }
+        });
+      });
+      // $comments.dialog("open");
+    });
+    $(".commentsDialog").on("shown.bs.modal", function(e){
+      $("textarea", this).focus();
+    });
+    $(".repostDialog").on("shown.bs.modal", function(e){
+      $("textarea", this).focus();
+    });
+    if(weibo.favourited){
+      $(".btn:eq(2)", $btnGroup).text("取消收藏");
+    }
+    $(".btn:eq(2)", $btnGroup).click(function(){
+      if($(this).text() == "收藏"){
+        $.ajax({
+          url: 'https://api.weibo.com/2/favorites/create.json',
+          type: 'post',
+          dataType: 'json',
+          data: {
+            access_token: access_token,
+            id: weibo.id
+          },
+          success: function(data){
+            $(".btn:eq(2)", $btnGroup).text("取消收藏");
+            alert("收藏成功");
+          }
+        });
+      } else {
+        $.ajax({
+          url: 'https://api.weibo.com/2/favorites/destroy.json',
+          type: 'post',
+          dataType: 'json',
+          data: {
+            access_token: access_token,
+            id: weibo.id
+          },
+          success: function(data){
+            $(".btn:eq(2)", $btnGroup).text("收藏");
+            alert("删除收藏成功");
+          }
+        });
       }
     });
-    $(".option", $repost).html("<input type='checkbox' id='rpcom' /><label for='rpcom'>转发的同时评论该微博</label><br/>");
-    if(weibo.retweeted_status != undefined){
-      $(".option", $repost).append("<input type='checkbox' id='rpcomrt' /><label for='rpcomrt'>转发的同时评论原微博</label>");
-    }
-    $repost.dialog("open");
-
-  });
-  $(".btn:eq(1)", $btnGroup).click(function(){
-    var $comments = $("div.commentsDialog");
-    $(".wbId", $comments).attr("value", weibo.id);
-    $(".wbUser", $comments).attr("value", user.screen_name);
-    $comments.dialog("option", "title", "评论 @"+user.screen_name+" 的微博");
-    $("textarea", $comments).val("");
-    $(".hint", $comments).html("你还可以输入<strong>140</strong>个字").css("color", "grey");
-    $("textarea", $comments).on("input", function(event){
-      var count = 140 - $(this).val().length;
-      if(count >= 0){
-        if($(".hint", $comments).css("color") == "rgb(255, 0, 0)"){
-          $(".hint", $comments).html("你还可以输入<strong>140</strong>个字").css("color", "grey");
-        }
-        $(".hint strong", $comments).text(count);
-      } else {
-        $(".hint", $comments).html("超过140字数限制").css("color", "red");
-      }
-    });
-    $(".option", $comments).html("");
-    if(weibo.retweeted_status !== undefined){
-      $(".option", $comments).append("<input type='checkbox' id='comretweeted' /><label for='comretweeted'>评论原微博</label>");
-    }
-    $comments.dialog("open");
-  });
-  if(weibo.favourited){
-    $(".btn:eq(2)", $btnGroup).text("取消收藏");
   }
-  $(".btn:eq(2)", $btnGroup).click(function(){
-    if($(this).text() == "收藏"){
-      $.ajax({
-        url: 'https://api.weibo.com/2/favorites/create.json',
-        type: 'post',
-        dataType: 'json',
-        data: {
-          access_token: access_token,
-          id: weibo.id
-        },
-        success: function(data){
-          $(".btn:eq(2)", $btnGroup).text("取消收藏");
-          alert("收藏成功");
-        }
-      });
-    } else {
-      $.ajax({
-        url: 'https://api.weibo.com/2/favorites/destroy.json',
-        type: 'post',
-        dataType: 'json',
-        data: {
-          access_token: access_token,
-          id: weibo.id
-        },
-        success: function(data){
-          $(".btn:eq(2)", $btnGroup).text("收藏");
-          alert("删除收藏成功");
-        }
-      });
-    }
-  });
   $wbHandle.append($btnGroup);
   var $wbFunc = $("<div class='wb-func'></div>");
   $wbFunc.append($wbFrom, $wbHandle);

@@ -58,7 +58,7 @@
         <div class="tab-pane" id="mentions"></div>
         <div class="tab-pane" id="comments"></div>
         <div class="tab-pane" id="update">
-          <div class="update-container">
+          <div id="update-container">
             <br/>
             <textarea></textarea><br/>
             <div class="hint"></div>
@@ -72,6 +72,7 @@
             <div class="clear"></div>
           </div>
         </div>
+        <div class="clear"></div>
       </div>
 
       <div class="original-picture"></div>
@@ -83,7 +84,45 @@
           <div class="tip-intro"></div>
         </div>
       </div> -->
-      <div class="commentsDialog">
+      <div class="modal fade commentsDialog">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-body">
+              <h5 class="dialog-header"></h5>
+              <div style="display:none;">
+                <input type="text" class="wbId" value="0" />
+                <input type="text" class="wbUser" value="0" />
+              </div>
+              <textarea></textarea><br/>
+              <div class="hint"></div>
+              <div class="option"></div>
+              <button type="button" class="btn btn-primary btn-sm btn-publish" id="btn-comment">评论</button>
+              <button type="button" class="btn btn-default btn-sm btn-publish" data-dismiss="modal">关闭</button>
+              <div class="clear"></div>
+            </div>
+          </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
+      </div><!-- /.modal -->
+      <div class="modal fade repostDialog">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-body">
+              <h5 class="dialog-header"></h5>
+              <div style="display:none;">
+                <input type="text" class="wbId" value="0" />
+                <input type="text" class="wbUser" value="0" />
+              </div>
+              <textarea></textarea><br/>
+              <div class="hint"></div>
+              <div class="option"></div>
+              <button type="button" class="btn btn-primary btn-sm btn-publish" id="btn-repost">转发</button>
+              <button type="button" class="btn btn-default btn-sm btn-publish" data-dismiss="modal">关闭</button>
+              <div class="clear"></div>
+            </div>
+          </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
+      </div><!-- /.modal -->
+      <!-- <div class="commentsDialog">
         <div style="display:none;">
           <input type="text" class="wbId" value="0" />
           <input type="text" class="wbUser" value="0" />
@@ -91,10 +130,10 @@
         <textarea></textarea><br/>
         <div class="hint"></div>
         <div class="option">
-          <!-- <input type="checkbox" value="评论原微博" />评论原微博 -->
+          
         </div>
-      </div>
-      <div class="repostDialog">
+      </div> -->
+      <!-- <div class="repostDialog">
         <div style="display:none;">
           <input type="text" class="wbId" value="0" />
           <input type="text" class="wbUser" value="0" />
@@ -102,7 +141,7 @@
         <textarea></textarea><br/>
         <div class="hint"></div>
         <div class="option"></div>
-      </div>
+      </div> -->
       <div class="clear"></div>
     </div>
   </body>
