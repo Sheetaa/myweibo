@@ -62,8 +62,6 @@ $(function(){
     user = storage.getItem("user");
   }
 
-  // $("#tabs").tabs();
-  // $("button").button();
   $("#btnNewWinPopup").click(function(){
     chrome.windows.create({url: "popup.html", type: "popup", width: 620, height: 700});
     // window.open("popup.html", "_blank", "width=580");
@@ -76,84 +74,6 @@ $(function(){
       $("li:eq(0) .unreadCount").remove();
     }
   });
-  // 这是jQuery UI 弃之 改用Bootstrap
-  // $("div.commentsDialog").dialog({
-  //   autoOpen: false,
-  //   closeOnEscape: true,
-  //   height: "auto",
-  //   width: "auto",
-  //   modal: true,
-  //   buttons: {
-  //     "评论": function(){
-  //       var id = $(".wbId", this).val();
-  //       var comment = $("textarea", this).val();
-  //       var comment_ori = 0;
-  //       if($("#comretweeted", this).length !== 0 && $("#comretweeted", this)[0].checked){
-  //           comment_ori = 1;
-  //       }
-  //       $.ajax({
-  //         url: 'https://api.weibo.com/2/comments/create.json',
-  //         type: 'post',
-  //         dataType: 'json',
-  //         async: false,
-  //         data: {
-  //           access_token: access_token,
-  //           id: id,
-  //           comment: comment,
-  //           comment_ori: comment_ori
-  //         },
-  //         success: function(data){
-  //           //console.log(data);
-  //           alert("comment success");
-  //         }
-  //       });
-  //       $(this).dialog("close");
-  //     }
-  //   }
-  // });
-  // $("div.repostDialog").dialog({
-  //   autoOpen: false,
-  //   closeOnEscape: true,
-  //   height: "auto",
-  //   width: "auto",
-  //   modal: true,
-  //   buttons: {
-  //     "转发": function(){
-  //       var id = $(".wbId", this).val();
-  //       var status = $("textarea", this).val();
-  //       var is_comment = 0;
-  //       if($("#rpcomrt", this).length == 0 && $("#rpcom", this)[0].checked){
-  //         is_comment = 1;
-  //       }
-  //       if($("#rpcomrt", this).length !== 0){
-  //         if($("#rpcom", this)[0].checked == true && $("#rpcomrt", this)[0].checked == false){
-  //           is_comment = 1;
-  //         } else if($("#rpcom", this)[0].checked == false && $("#rpcomrt", this)[0].checked == true){
-  //           is_comment = 2;
-  //         } else if($("#rpcom", this)[0].checked && $("#rpcomrt", this)[0].checked){
-  //           is_comment = 3;
-  //         }
-  //       }
-  //       $.ajax({
-  //         url: 'https://api.weibo.com/2/statuses/repost.json',
-  //         type: 'post',
-  //         dataType: 'json',
-  //         async: false,
-  //         data: {
-  //           access_token: access_token,
-  //           id: id,
-  //           status: status,
-  //           is_comment: is_comment
-  //         },
-  //         success: function(data){
-  //           //console.log(data);
-  //           alert("repost success");
-  //         }
-  //       });
-  //       $(this).dialog("close");
-  //     }
-  //   }
-  // });
   fFriendsTimeline();
 
   $("ul li:eq(1)").click(function(){
@@ -190,15 +110,11 @@ $(function(){
       $("li:eq(3) .unreadCount").remove();
     }
   });
-  $("a[data-toggle='tab']:eq(4)").on("show.bs.tab", function(event){
-    $("#user_timeline").tab("show");
-    $(".updateDialog").modal("show");
-  });
   $("div.wb-container a[href=#user_timeline]").click(function(){
     $("#user_timeline").html("");
     page_count_user = 1;
     fUserTimeline($(this).attr("screen_name"));// 貌似这是微博API的问题，可以调用自己的微博列表，不可以返回别人的微博列表，只有应用通过审核之后才可以
-    $("#tabs").tabs("option", "active", 1);
+    $("ul li:eq(1) a").tab("show");
   });
   
   console.log("window height: "+$(window).height());
@@ -210,34 +126,44 @@ $(function(){
     // console.log("document scrollTop: "+$(document).scrollTop());
     // console.log("window scrollTop: "+$(window).scrollTop());
     // console.log("window height: "+$(window).height());
-    if($("#tabs").tabs("option", "active") == 0){
+    if($("#friends_timeline").attr("class") == "tab-pane active"){
       if($(window).scrollTop() + $(window).height() >= $(document).height()){
         console.log("Send a new request");
         fFriendsTimeline();
       }
-    } else if($("#tabs").tabs("option", "active") == 1){
+    } else if($("#user_timeline").attr("class") == "tab-pane active"){
       if($(window).scrollTop() + $(window).height() >= $(document).height()){
         console.log("Send a new request");
         fUserTimeline();
       }
+    } else if($("#mentions").attr("class") == "tab-pane active"){
+      if($(window).scrollTop() + $(window).height() >= $(document).height()){
+        console.log("Send a new request");
+        fMentions();
+      }
+    } else if($("#comments").attr("class") == "tab-pane active"){
+      if($(window).scrollTop() + $(window).height() >= $(document).height()){
+        console.log("Send a new request");
+        fComments();
+      }
     }
   });
 
-  $("#update .hint").html("你还可以输入<strong>140</strong>个字").css("color", "grey");
-  $("#update textarea").on("input", function(event){
+  $(".updateDialog .hint").html("你还可以输入<strong>140</strong>个字").css("color", "grey");
+  $(".updateDialog textarea").on("input", function(event){
     var count = 140 - $(this).val().length;
     if(count >= 0){
-      if($("#update .hint").css("color") == "rgb(255, 0, 0)"){
-        $("#update .hint").html("你还可以输入<strong>140</strong>个字").css("color", "grey");
+      if($(".updateDialog .hint").css("color") == "rgb(255, 0, 0)"){
+        $(".updateDialog .hint").html("你还可以输入<strong>140</strong>个字").css("color", "grey");
       }
-      $("#update .hint strong").text(count);
+      $(".updateDialog .hint strong").text(count);
     } else {
-      $("#update .hint").html("超过140字数限制").css("color", "red");
+      $(".updateDialog .hint").html("超过140字数限制").css("color", "red");
     }
   });
-  $("button.update").click(function(){
-    var content = $("#update textarea").val();
-    var option = $("#update select:selected").val();
+  $("#btn-publish").click(function(){
+    var content = $(".updateDialog textarea").val();
+    var option = $(".updateDialog select:selected").val();
     if(content.length == 0){
       alert("微博内容为空，请输入内容！");
     } else if(content.length > 140){
@@ -366,11 +292,13 @@ function fWeiboHover(){
     $("div.wb-text a", this).addClass("text-url");
     $("div.wb-from a", this).addClass("from-url");
     $("div.wb-handle a", this).addClass("name-url");
+    $("div.wb-handle span", this).addClass("name-url");
   }, function(){
     $("div.username a", this).removeClass("name-url");
     $("div.wb-text a", this).removeClass("text-url");
     $("div.wb-from a", this).removeClass("from-url");
     $("div.wb-handle a", this).removeClass("name-url");
+    $("div.wb-handle span", this).removeClass("name-url");
   });
 }
 
@@ -484,7 +412,7 @@ function fWeiboGenerator(weibo, isRepost, isComment){
   var $wbHandle = $("<div class='wb-handle'></div>");
   var $btnGroup = $("<div class='btn-group btn-group-xs'></div>");
   if(isComment == true){
-    $btnGroup.append("<button class='btn btn-default' data-toggle='modal' data-target='.replyDialog'>回复</button><button class='btn btn-default'>删除</button>");
+    $btnGroup.append("<button class='btn btn-default' data-toggle='modal' data-target='.replyDialog' title='回复'><span class='glyphicon glyphicon-pencil'></span></button><button class='btn btn-default' title='删除'><span class='glyphicon glyphicon-trash'></span></button>");
     $(".btn:eq(0)", $btnGroup).click(function(){
       var $reply = $("div.replyDialog");
       $(".dialog-header", $reply).html("回复 @"+user.screen_name+" 的微博");
@@ -521,7 +449,7 @@ function fWeiboGenerator(weibo, isRepost, isComment){
       });
     });
   } else {
-    $btnGroup.append("<button class='btn btn-default' data-toggle='modal' data-target='.repostDialog'>转发"+weibo.reposts_count+"</button><button class='btn btn-default' data-toggle='modal' data-target='.commentsDialog'>评论"+weibo.comments_count+"</button><button class='btn btn-default'>收藏</button>");
+    $btnGroup.append("<button class='btn btn-default' data-toggle='modal' data-target='.repostDialog' title='转发'><span class='glyphicon glyphicon-share'></span>"+weibo.reposts_count+"</button><button class='btn btn-default' data-toggle='modal' data-target='.commentsDialog' title='评论'><span class='glyphicon glyphicon-comment'></span>"+weibo.comments_count+"</button><button class='btn btn-default' title='收藏'></button>");
     $(".btn:eq(0)", $btnGroup).click(function(){
       var $repost = $("div.repostDialog");
       $(".dialog-header", $repost).html("转发 @"+user.screen_name+" 的微博");
@@ -644,11 +572,13 @@ function fWeiboGenerator(weibo, isRepost, isComment){
     $(".replyDialog").on("shown.bs.modal", function(e){
       $("textarea", this).focus();
     });
-    if(weibo.favourited){
-      $(".btn:eq(2)", $btnGroup).text("取消收藏");
+    if(weibo.favorited){
+      $(".btn:eq(2)", $btnGroup).html("<span class='glyphicon glyphicon-heart'></span>");
+    } else {
+      $(".btn:eq(2)", $btnGroup).html("<span class='glyphicon glyphicon-heart-empty'></span>");
     }
     $(".btn:eq(2)", $btnGroup).click(function(){
-      if($(this).text() == "收藏"){
+      if($("span", this).attr("class") == 'glyphicon glyphicon-heart-empty name-url'){
         $.ajax({
           url: 'https://api.weibo.com/2/favorites/create.json',
           type: 'post',
@@ -658,7 +588,7 @@ function fWeiboGenerator(weibo, isRepost, isComment){
             id: weibo.id
           },
           success: function(data){
-            $(".btn:eq(2)", $btnGroup).text("取消收藏");
+            $(".btn:eq(2)", $btnGroup).html("<span class='glyphicon glyphicon-heart'></span>");
             alert("收藏成功");
           }
         });
@@ -672,8 +602,8 @@ function fWeiboGenerator(weibo, isRepost, isComment){
             id: weibo.id
           },
           success: function(data){
-            $(".btn:eq(2)", $btnGroup).text("收藏");
-            alert("删除收藏成功");
+            $(".btn:eq(2)", $btnGroup).html("<span class='glyphicon glyphicon-heart-empty'></span>");
+            alert("取消收藏成功");
           }
         });
       }

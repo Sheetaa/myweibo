@@ -31,17 +31,24 @@ body {
   background-color: #f8f8f8;
   z-index: 999;
 }
+.glyphicon {
+  font-size: large;
+  margin: 0 3px 0 3px;
+}
+.wb-container .glyphicon {
+  font-size: small;
+}
 #container {
   margin: 0 auto;
   width: 560px;
   text-align: left;
 }
-a.name-url {
-  color: green;
+.name-url {
+  color: rgb(0, 146, 129);
   font-weight: bold;
 }
-a.from-url, a.text-url {
-  color: green;
+.from-url, .text-url {
+  color: rgb(0, 146, 129);
   font-weight: 300;
 }
 a:link {text-decoration: none;}
@@ -53,11 +60,6 @@ a:active {text-decoration: underline;}
   margin-top: 40px;
   text-align: left;
 }
-#update {
-  margin-top: 40px;
-  text-align: center;
-  width: 560px;
-}
 #update-container {
   width: 400px;
   margin: 0 auto;
@@ -68,7 +70,7 @@ a:active {text-decoration: underline;}
   width: 560px;
   padding: 10px;
   margin-bottom: 10px;
-  border: 1px solid black;
+  border: 1px solid rgb(204, 204, 204);
   border-radius: 5px;
 }
 .wb-face {

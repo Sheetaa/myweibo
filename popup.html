@@ -23,14 +23,16 @@
       <li><a href="#user_timeline" data-toggle="tab">用户微博</a></li>
       <li><a href="#mentions" data-toggle="tab">提到我的</a><li>
       <li><a href="#comments" data-toggle="tab">评论</a></li>
-      <li><a href="#update" data-toggle="tab">发布微博</a></li>
     </ul>
     <div class="toolbar">
       <a id="btnNewWinPopup" href title="弹出到新窗口">
-        <img src="/images/new_win.png" />
+        <span class="glyphicon glyphicon-new-window"></span>
       </a>
       <a id="btnRefresh" href title="获取最新">
-        <img src="/images/refresh.png" />
+        <span class="glyphicon glyphicon-refresh"></span>
+      </a>
+      <a id="update" href data-toggle='modal' data-target='.updateDialog' title="发布新微博">
+        <span class="glyphicon glyphicon-edit"></span>
       </a>
     </div>
     <div id="container">
@@ -57,21 +59,13 @@
         <div class="tab-pane" id="user_timeline"></div>
         <div class="tab-pane" id="mentions"></div>
         <div class="tab-pane" id="comments"></div>
-        <div class="tab-pane" id="update">
-          <!-- <div id="update-container">
-            <br/>
-            <textarea></textarea><br/>
-            <div class="hint"></div>
-            <button type="button" class="btn btn-sm update">发布</button>
+          <!-- 
             <select>
               <option value="0">公开</option>
               <option value="1">仅自己可见</option>
               <option value="2">密友可见</option>
               <option value="3">指定分组可见</option>
-            </select>
-            <div class="clear"></div>
-          </div> -->
-        </div>
+            </select> -->
         <div class="clear"></div>
       </div>
 
