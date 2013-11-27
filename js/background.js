@@ -1,8 +1,11 @@
 var storage = window.localStorage,
-    access_token,
-    uid,
+    access_token = storage.getItem("access_token"),
+    uid = storage.getItem("uid"),
+    faces = JSON.parse(storage.getItem("faces")),
     unreadCount,// 对象
-    totalUnread;// 数字
+    totalUnread = 0,// 数字
+    statusUnread = 0,
+    esUnread;// 除了未读微博数以外的所有未读消息数目
 
 if(storage.getItem("access_token") == null){
     chrome.browserAction.setIcon({path:"images/weibo_offline.jpg"});
@@ -11,28 +14,36 @@ if(storage.getItem("access_token") == null){
 setInterval(function(){
     access_token = storage.getItem("access_token");
     uid = storage.getItem("uid");
-    totalUnread = storage.getItem("totalUnread");
+    statusUnread = Number(storage.getItem("statusUnread"));
+    esUnread = Number(storage.getItem("esUnread"));
 }, 1000);
 //获取表情符号icon地址
-if(storage.getItem("faces") == null){
+if(faces == null || faces.error != null){
+    fGetFaces();
+}
+function fGetFaces(){
     var xhr = new XMLHttpRequest();
     xhr.onreadystatechange = function(){
         if(xhr.readyState != 4){
             return;
         }
         if(xhr.responseText){
-            storage.setItem("faces", xhr.responseText);
+            if(xhr.responseText.error != null){
+                fGetFaces();
+            } else {
+                storage.setItem("faces", xhr.responseText);
+            }
         }
     };
     xhr.open("get", "https://api.weibo.com/2/emotions.json?access_token="+access_token);
     xhr.send(null);
 }
-// fUpdateIcon();
-// setInterval(fUpdateIcon(), 1000);
 setInterval(function(){
     fGetUnreadCount();
-    if(storage.hasOwnProperty("unreadCount") && storage.getItem("totalUnread") !== "0"){
-        chrome.browserAction.setBadgeText({text: totalUnread+""});
+    if(storage.hasOwnProperty("unreadCount")){
+        if(totalUnread != 0){
+            chrome.browserAction.setBadgeText({text: totalUnread+""});
+        }
         chrome.runtime.sendMessage(unreadCount);
     }
 }, 15000);
@@ -47,17 +58,14 @@ function fGetUnreadCount(){
             if(xhr.responseText !== '{"error":"invalid_access_token","error_code":21332,"request":"/2/remind/unread_count.json"}'){
                 storage.setItem("unreadCount", xhr.responseText);
                 unreadCount = JSON.parse(xhr.responseText);
-                totalUnread = unreadCount.status + unreadCount.follower + unreadCount.cmt + unreadCount.dm + unreadCount.mention_status + unreadCount.mention_cmt + unreadCount.group + unreadCount.notice + unreadCount.invite + unreadCount.badge + unreadCount.photo;
-                storage.setItem("totalUnread", totalUnread);
+                statusUnread += unreadCount.status;
+                esUnread = unreadCount.follower + unreadCount.cmt + unreadCount.dm + unreadCount.mention_status + unreadCount.mention_cmt + unreadCount.group + unreadCount.notice + unreadCount.invite + unreadCount.badge + unreadCount.photo;
+                totalUnread = statusUnread + esUnread;
+                storage.setItem("statusUnread", statusUnread);
+                storage.setItem("esUnread", esUnread);
             }
         }
     };
     xhr.open("get", "https://rm.api.weibo.com/2/remind/unread_count.json?access_token="+access_token+"&uid="+uid, false);
     xhr.send(null);
-}
-function fUpdateIcon(){
-    fGetUnreadCount();
-    if(storage.hasOwnProperty("unreadCount") && storage.getItem("totalUnread") !== "0"){
-        chrome.browserAction.setBadgeText({text: totalUnread+""});
-    }
 }

@@ -20,11 +20,8 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse){
     if($("li:eq(0) .unreadCount").length == 0){
       $("li:eq(0)").append("<div class='unreadCount'>"+message.status+"</div>");
     } else {
-      $("li:eq(0) .unreadCount").text(message.status);
-    }
-  } else {
-    if($("li:eq(0) .unreadCount").length != 0){
-      $("li:eq(0) .unreadCount").remove();
+      var statusUnread = Number($("li:eq(0) .unreadCount").text()) + message.status;
+      $("li:eq(0) .unreadCount").text(statusUnread);
     }
   }
   // 未读@数
@@ -74,9 +71,23 @@ $(function(){
     fFriendsTimeline();
     if($("li:eq(0) .unreadCount").length != 0){
       $("li:eq(0) .unreadCount").remove();
+      storage.setItem("statusUnread", "0");
+    }
+    var esUnread = Number(storage.getItem("esUnread"));
+    if(esUnread != 0){
+      chrome.browserAction.setBadgeText({text: storage.getItem("esUnread")});
+    } else {
+      chrome.browserAction.setBadgeText({text: ""});
     }
   });
   fFriendsTimeline();
+  storage.setItem("statusUnread", "0");
+  var esUnread = Number(storage.getItem("esUnread"));
+  if(esUnread != 0){
+    chrome.browserAction.setBadgeText({text: storage.getItem("esUnread")});
+  } else {
+    chrome.browserAction.setBadgeText({text: ""});
+  }
 
   $("a[data-toggle='tab']:eq(0)").on("shown.bs.tab", function(event){
     window.scrollTo(0, flag_pageYOff_friends);
@@ -214,8 +225,6 @@ function fFriendsTimeline(){
         $("#friends_timeline").append($wbContainer);
         fWeiboHover();
       }
-      storage.setItem("totalUnread", "0");
-      chrome.browserAction.setBadgeText({text: ""});
     }
   });
 }
