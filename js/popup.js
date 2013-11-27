@@ -1,6 +1,7 @@
 var storage = window.localStorage,
     access_token,
     user,
+    currentUser,
     flag_pageYOff_friends = 0,
     page_count_friends = 1,//公共微博的加载页数
     page_count_user = 1,//用户微博的加载页数
@@ -60,6 +61,7 @@ $(function(){
     access_token = storage.getItem("access_token");
     uid = storage.getItem("uid");
     user = storage.getItem("user");
+    currentUser = user.screen_name;
   }
 
   $("#btnNewWinPopup").click(function(){
@@ -76,44 +78,49 @@ $(function(){
   });
   fFriendsTimeline();
 
-  $("ul li:eq(1)").click(function(){
-    flag_pageYOff_friends = $(window).scrollTop();
+  $("a[data-toggle='tab']:eq(0)").on("shown.bs.tab", function(event){
+    window.scrollTo(0, flag_pageYOff_friends);
+  });
+  $("a[data-toggle='tab']:eq(1)").on("shown.bs.tab", function(event){
+    // console.log(event.target);// 返回的是DOM对象
+    // console.log(event.relatedTarget);
+    if($(event.relatedTarget).text() == "首页"){
+      flag_pageYOff_friends = $(window).scrollTop();
+    }
     $("#user_timeline").html("");
     page_count_user = 1;
     fUserTimeline(user.screen_name);
+    window.scrollTo(0, 0);
   });
-  $("ul li:eq(0)").click(function(){
-    window.scrollTo(0, flag_pageYOff_friends);
-  });
-  $("ul li:eq(2)").click(function(){
-    $("#mentions").html("");
-    page_count_mentions = 1;
-    fMentions();
-    if($("li:eq(2) .unreadCount").length != 0){
+  $("a[data-toggle='tab']:eq(2)").on("shown.bs.tab", function(event){
+    if($(event.relatedTarget).text() == "首页"){
+      flag_pageYOff_friends = $(window).scrollTop();
+    }
+    if($("li:eq(2) .unreadCount").length != 0 || $("#mentions").html() == ""){
+      $("#mentions").html("");
+      page_count_mentions = 1;
+      fMentions();
       $("li:eq(2) .unreadCount").remove();
     }
+    window.scrollTo(0, 0);
   });
-  // $("ul li:eq(3)").click(function(){
-  //   $("#comments").html("");
-  //   page_count_comments = 1;
-  //   fComments();
-  //   if($("li:eq(3) .unreadCount").length != 0){
-  //     $("li:eq(3) .unreadCount").remove();
-  //   }
-  // });
-  // 不知道为什么评论tab用@tab一样的方法却完全不起作用，绑定的click事件没有执行，只能用bootstrap提供的接口实现
-  $("a[data-toggle='tab']:eq(3)").on("show.bs.tab", function(event){
-    $("#comments").html("");
-    page_count_comments = 1;
-    fComments();
-    if($("li:eq(3) .unreadCount").length != 0){
+  $("a[data-toggle='tab']:eq(3)").on("shown.bs.tab", function(event){
+    if($(event.relatedTarget).text() == "首页"){
+      flag_pageYOff_friends = $(window).scrollTop();
+    }
+    if($("li:eq(3) .unreadCount").length != 0 || $("#comments").html() == ""){
+      $("#comments").html("");
+      page_count_comments = 1;
+      fComments();
       $("li:eq(3) .unreadCount").remove();
     }
+    window.scrollTo(0, 0);
   });
   $("div.wb-container a[href=#user_timeline]").click(function(){
     $("#user_timeline").html("");
     page_count_user = 1;
-    fUserTimeline($(this).attr("screen_name"));// 貌似这是微博API的问题，可以调用自己的微博列表，不可以返回别人的微博列表，只有应用通过审核之后才可以
+    currentUser = $(this).attr("screen_name");
+    fUserTimeline(currentUser);// 貌似这是微博API的问题，可以调用自己的微博列表，不可以返回别人的微博列表，只有应用通过审核之后才可以
     $("ul li:eq(1) a").tab("show");
   });
   
@@ -134,7 +141,7 @@ $(function(){
     } else if($("#user_timeline").attr("class") == "tab-pane active"){
       if($(window).scrollTop() + $(window).height() >= $(document).height()){
         console.log("Send a new request");
-        fUserTimeline();
+        fUserTimeline(currentUser);
       }
     } else if($("#mentions").attr("class") == "tab-pane active"){
       if($(window).scrollTop() + $(window).height() >= $(document).height()){
@@ -482,17 +489,17 @@ function fWeiboGenerator(weibo, isRepost, isComment){
         $(".option", $repost).append("<input type='checkbox' id='rpcomrt' /><label for='rpcomrt'>转发的同时评论原微博</label>");
       }
       $("#btn-repost", $repost).click(function(){
-        var status = $("textarea", this).val();
+        var status = $("textarea", $repost).val();
         var is_comment = 0;
-        if($("#rpcomrt", this).length == 0 && $("#rpcom", this)[0].checked){
+        if($("#rpcomrt", $repost).length == 0 && $("#rpcom", $repost)[0].checked){
           is_comment = 1;
         }
-        if($("#rpcomrt", this).length !== 0){
-          if($("#rpcom", this)[0].checked == true && $("#rpcomrt", this)[0].checked == false){
+        if($("#rpcomrt", $repost).length !== 0){
+          if($("#rpcom", $repost)[0].checked == true && $("#rpcomrt", $repost)[0].checked == false){
             is_comment = 1;
-          } else if($("#rpcom", this)[0].checked == false && $("#rpcomrt", this)[0].checked == true){
+          } else if($("#rpcom", $repost)[0].checked == false && $("#rpcomrt", $repost)[0].checked == true){
             is_comment = 2;
-          } else if($("#rpcom", this)[0].checked && $("#rpcomrt", this)[0].checked){
+          } else if($("#rpcom", $repost)[0].checked && $("#rpcomrt", $repost)[0].checked){
             is_comment = 3;
           }
         }
@@ -509,6 +516,7 @@ function fWeiboGenerator(weibo, isRepost, isComment){
           },
           success: function(data){
             $(".repostDialog").modal("hide");
+            $(".btn:eq(0)", $btnGroup).html("<span class='glyphicon glyphicon-share'></span>"+(weibo.reposts_count+1));
             alert("repost success");
           }
         });
@@ -555,8 +563,8 @@ function fWeiboGenerator(weibo, isRepost, isComment){
             comment_ori: comment_ori
           },
           success: function(data){
-            //console.log(data);
             $(".commentsDialog").modal("hide");
+            $(".btn:eq(1)", $btnGroup).html("<span class='glyphicon glyphicon-comment'></span>"+(weibo.comments_count+1));
             alert("comment success");
           }
         });

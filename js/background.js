@@ -1,8 +1,8 @@
 var storage = window.localStorage,
     access_token,
     uid,
-    unreadCount,
-    totalUnread;
+    unreadCount,// 对象
+    totalUnread;// 数字
 
 if(storage.getItem("access_token") == null){
     chrome.browserAction.setIcon({path:"images/weibo_offline.jpg"});
