@@ -50,6 +50,18 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse){
       $("li:eq(3) .unreadCount").remove();
     }
   }
+  //粉丝
+  if(message.follower != 0){
+    if($("li:eq(4) .unreadCount").length == 0){
+      $("li:eq(4)").append("<div class='unreadCount'>"+message.follower+"</div>");
+    } else {
+      $("li:eq(4) .unreadCount").text(message.follower);
+    }
+  } else {
+    if($("li:eq(4) .unreadCount").length != 0){
+      $("li:eq(4) .unreadCount").remove();
+    }
+  }
 });
 
 $(function(){
@@ -136,8 +148,9 @@ $(function(){
     if($(event.relatedTarget).text() == "首页"){
       flag_pageYOff_friends = $(window).scrollTop();
     }
-    if($("li:eq(4) .unreadCount").length != 0 || $("#comments").html() == ""){
-      $("#comments").html("");
+    console.log($("#followers").html());
+    if($("li:eq(4) .unreadCount").length != 0 || $("#followers").html() == ""){
+      $("#followers").html("");
       page_count_followers = 1;
       fFollowers();
       if($("li:eq(4) .unreadCount").length != 0){
@@ -354,8 +367,28 @@ function fFollowerGenerator(follower){
   $fwFace.append($aFace);
   $fwDetail = $("<div class='fw-detail'></div>");
   var $fd0 = $("<div class='fd0'></div>");
+  $fd0.append("<a target='_blank' href='http://www.weibo.com/"+follower.profile_url+"' rhref='http://www.weibo.com/"+follower.profile_url+"'></a> <span>"+follower.location+"</span>");
+  var $fd1 = $("<div class='fd1'></div>");
+  $fd1.append("关注 <a target='_blank' href='http://weibo.com/"+follower.id+"/follow' rhref='http://weibo.com/"+follower.id+"/follow'>"+follower.friends_count+"</a> 粉丝 <a target='_blank' href='http://weibo.com/"+follower.id+"/fans' rhref='http://weibo.com/"+follower.id+"/fans'>"+follower.followers_count+"</a> 微博  <a target='_blank' href='http://weibo.com/u"+follower.id+"' rhref='http://weibo.com/u"+follower.id+"'>"+follower.statuses_count+"</a>");
+  var $fd2 = $("<div class='fd2'></div>");
+  $fd2.append("<button type='button' class='btn btn-xs' id='rmFollow'>移除粉丝</button>");
+  if(follower.follow_me == true){
+    $fd2.append("<button type='button' class='btn btn-xs' id='follow' disabled>相互关注</button>");
+  } else {
+    $fd2.append("<button type='button' class='btn btn-xs' id='follow'>关注</button>");
+  }
+  $fwDetail.append($fd0, $fd1, $fd2);
   $fwContainer.append($fwFace, $fwDetail);
-  return fwContainer;
+  $fwContainer.append("<div class='clear'></div>");
+  //绑定鼠标右击事件
+  $("a", $fwContainer).bind("contextmenu", function(e){
+    return false
+  }).mousedown(function(event){
+    if(event.which == 3 && $(this).attr("rhref")){
+      chrome.tabs.create({url: $(this).attr("rhref"), active: false});      
+    }
+  });
+  return $fwContainer;
 }
 
 /**

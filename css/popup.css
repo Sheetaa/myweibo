@@ -54,7 +54,7 @@ a:link {text-decoration: none;}
 a:visited {text-decoration: none;}
 a:hover {text-decoration: none; color: #428bca;}
 a:active {text-decoration: none; color: #428bca;}
-#friends_timeline, #user_timeline, #mentions, #comments {
+.tab-pane {
   float: left;
   margin-top: 40px;
   text-align: left;
@@ -145,4 +145,12 @@ select {
 }
 .wb-face img {
   border-radius: 25px;
+}
+.fw-container {
+  width: 250px;
+  float: left;
+  padding: 10px;
+  margin-bottom: 10px;
+  border: 1px solid rgb(204, 204, 204);
+  border-radius: 5px;
 }
