@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
 
-  "name": "MyWeibo",
+  "name": "超凡微博",
   "description": "This extension demonstrates personal Weibo content",
   "version": "1.0",
 
@@ -10,8 +10,7 @@
   },
   "browser_action": {
     "default_icon": "images/weibo.png",
-    "default title": "超凡微博",
-    "default_popup": "popup.html"
+    "default title": "超凡微博"
   },
   "options_page": "options.html",
   "permissions": [

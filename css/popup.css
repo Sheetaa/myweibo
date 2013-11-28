@@ -1,7 +1,6 @@
 body {
   font-family: "Arial";
   font-size: 12px;
-  width: 580px;
   text-align: center;
 }
 .nav {
@@ -53,8 +52,8 @@ body {
 }
 a:link {text-decoration: none;}
 a:visited {text-decoration: none;}
-a:hover {text-decoration: underline;}
-a:active {text-decoration: underline;}
+a:hover {text-decoration: none; color: #428bca;}
+a:active {text-decoration: none; color: #428bca;}
 #friends_timeline, #user_timeline, #mentions, #comments {
   float: left;
   margin-top: 40px;
@@ -115,7 +114,6 @@ a:active {text-decoration: underline;}
 }
 .tip-right {
   float: left;
-  width: 85%;
   margin-left: 10px;
 }
 .clear {
@@ -140,7 +138,11 @@ select {
 }
 .picture img {
   cursor: url(big.cur), pointer;
+  border-radius: 3px;
 }
 .btn-publish {
   float: right;
+}
+.wb-face img {
+  border-radius: 25px;
 }

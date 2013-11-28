@@ -7,6 +7,10 @@ var storage = window.localStorage,
     statusUnread = 0,
     esUnread;// 除了未读微博数以外的所有未读消息数目
 
+chrome.browserAction.onClicked.addListener(function(){
+    chrome.windows.create({url: "popup.html", type: "popup", width: 620, height: 700});
+})
+
 if(storage.getItem("access_token") == null){
     chrome.browserAction.setIcon({path:"images/weibo_offline.jpg"});
     chrome.browserAction.setBadgeText({text: ""});
@@ -14,8 +18,12 @@ if(storage.getItem("access_token") == null){
 setInterval(function(){
     access_token = storage.getItem("access_token");
     uid = storage.getItem("uid");
-    statusUnread = Number(storage.getItem("statusUnread"));
-    esUnread = Number(storage.getItem("esUnread"));
+    if(storage.hasOwnProperty("statusUnread")){
+        statusUnread = Number(storage.getItem("statusUnread"));
+    } else statusUnread = 0;
+    if(storage.hasOwnProperty("esUnread")){
+        esUnread = Number(storage.getItem("esUnread"));
+    } else esUnread = 0;
 }, 1000);
 //获取表情符号icon地址
 if(faces == null || faces.error != null){

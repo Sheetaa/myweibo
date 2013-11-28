@@ -7,6 +7,7 @@ var storage = window.localStorage,
     page_count_user = 1,//用户微博的加载页数
     page_count_mentions = 1,
     page_count_comments = 1,
+    page_count_followers = 1,
     fancyGroup = 0;
 
 /**
@@ -111,7 +112,9 @@ $(function(){
       $("#mentions").html("");
       page_count_mentions = 1;
       fMentions();
-      $("li:eq(2) .unreadCount").remove();
+      if($("li:eq(2) .unreadCount").length != 0){
+        $("li:eq(2) .unreadCount").remove();
+      }
     }
     window.scrollTo(0, 0);
   });
@@ -123,16 +126,25 @@ $(function(){
       $("#comments").html("");
       page_count_comments = 1;
       fComments();
-      $("li:eq(3) .unreadCount").remove();
+      if($("li:eq(3) .unreadCount").length != 0){
+        $("li:eq(3) .unreadCount").remove();
+      }
     }
     window.scrollTo(0, 0);
   });
-  $("div.wb-container a[href=#user_timeline]").click(function(){
-    $("#user_timeline").html("");
-    page_count_user = 1;
-    currentUser = $(this).attr("screen_name");
-    fUserTimeline(currentUser);// 貌似这是微博API的问题，可以调用自己的微博列表，不可以返回别人的微博列表，只有应用通过审核之后才可以
-    $("ul li:eq(1) a").tab("show");
+  $("a[data-toggle='tab']:eq(4)").on("shown.bs.tab", function(event){
+    if($(event.relatedTarget).text() == "首页"){
+      flag_pageYOff_friends = $(window).scrollTop();
+    }
+    if($("li:eq(4) .unreadCount").length != 0 || $("#comments").html() == ""){
+      $("#comments").html("");
+      page_count_followers = 1;
+      fFollowers();
+      if($("li:eq(4) .unreadCount").length != 0){
+        $("li:eq(4) .unreadCount").remove();
+      }
+    }
+    window.scrollTo(0, 0);
   });
   
   console.log("window height: "+$(window).height());
@@ -298,6 +310,53 @@ function fComments(){
     }
   });
 }
+/**
+*得到当前登陆用户的粉丝
+*/
+function fFollowers(){
+  $.ajax({
+    url: 'https://api.weibo.com/2/friendships/followers.json',
+    type: 'get',
+    dataType: 'json',
+    async: false,
+    data: {
+      access_token: access_token,
+      uid: uid,
+      // cursor: page_count_comments++,
+      trim_status: 0
+    },
+    success: function(data){
+      var followers = data.users;
+      for (var i = 0; i < followers.length; i++) {
+        var $fwContainer = fFollowerGenerator(followers[i]);
+        $("#followers").append($fwContainer);
+      }
+    }
+  });
+}
+/**
+*生成一个粉丝的完整内容和格式
+**/
+function fFollowerGenerator(follower){
+  var $fwContainer = $("<div class='fw-container'></div>");
+  var $fwFace = $("<div class='wb-face'></div>");
+  var $aFace = $("<a></a>");
+  $aFace.attr({
+    href: "http://www.weibo.com/"+follower.profile_url,
+    rhref: "http://www.weibo.com/"+follower.profile_url,
+    target: "_blank"
+  });
+  $aFace.append("<img width='50' height='50' /><br/>");
+  $("img", $aFace).attr({
+    title: follower.screen_name,
+    src: follower.profile_image_url
+  });
+  $fwFace.append($aFace);
+  $fwDetail = $("<div class='fw-detail'></div>");
+  var $fd0 = $("<div class='fd0'></div>");
+  $fwContainer.append($fwFace, $fwDetail);
+  return fwContainer;
+}
 
 /**
 *为微博添加鼠标悬浮事件，当鼠标悬浮在该条微博时，将所有类型的链接改变颜色以提示用户
@@ -342,7 +401,7 @@ function fWeiboGenerator(weibo, isRepost, isComment){
   // }
   // tip += "</div>" + "<div class='tip-info'><strong>微博</strong> "+user.statuses_count+" <strong>粉丝</strong> "+user.followers_count+" <strong>关注</strong> "+user.friends_count+" <strong>收藏</strong> "+user.favourites_count+"</div>";
   // if(user.description.length == 0)tip += "</div></div>";
-  // else tip += "<div class='tip-intro'><strong>简介</strong> "+user.description+"</div></div></div>";
+  // else tip += "<div class='tip-intro'><strong>简介</strong> "+user.description+"</div></div><div class='clear'></div></div>";
 
   var $wbContainer;
   if(isComment == true || (isComment == false && isRepost == false)){
@@ -353,6 +412,7 @@ function fWeiboGenerator(weibo, isRepost, isComment){
     var $aFace = $("<a></a>");
     $aFace.attr({
       href: "http://www.weibo.com/"+user.profile_url,
+      rhref: "http://www.weibo.com/"+user.profile_url,
       target: "_blank"
     });
     $aFace.append("<img width='50' height='50' /><br/>");
@@ -374,8 +434,10 @@ function fWeiboGenerator(weibo, isRepost, isComment){
     user_id: user.id,
     user_name: user.screen_name,
     href: "http://www.weibo.com/"+user.profile_url,
+    rhref: "http://www.weibo.com/"+user.profile_url,
     target: "_blank"
   });
+
   var $username = $("<div class='username'></div>").append($aName);
   if(user.verified){
     $username.append("<img src='images/verified.gif' />");
@@ -383,6 +445,18 @@ function fWeiboGenerator(weibo, isRepost, isComment){
   $wbDetail.append($username);
   var $wbText = fParseURL(weibo.text);
   $wbDetail.append($wbText);
+
+  $("a[href=#user_timeline]", $wbDetail).click(function(){
+    $("#user_timeline").html("");
+    page_count_user = 1;
+    currentUser = $(this).attr("screen_name");
+    fUserTimeline(currentUser);// 貌似这是微博API的问题，可以调用自己的微博列表，不可以返回别人的微博列表，只有应用通过审核之后才可以
+    if($("ul li:eq(0)").attr("class") == "active"){
+      flag_pageYOff_friends = $(window).scrollTop();
+    }
+    $("ul li:eq(1) a").tab("show");
+    window.scrollTo(0, 0);
+  });
 
   //微博中的图片
   if(isComment == false){
@@ -631,6 +705,25 @@ function fWeiboGenerator(weibo, isRepost, isComment){
   $wbFunc.append($wbFrom, $wbHandle);
   $wbDetail.append($wbFunc);
   $wbContainer.append($wbFace, $wbDetail);
+
+  //绑定鼠标右击事件
+  $("a", $wbContainer).bind("contextmenu", function(e){
+    return false
+  }).mousedown(function(event){
+    if(event.which == 3 && $(this).attr("rhref")){
+      chrome.tabs.create({url: $(this).attr("rhref"), active: false});      
+    }
+  });
+  $(".wb-face a, .username a").tooltip({
+      html: true,
+      placement: 'auto',
+      title: function(){
+        var tip = "<div class='tip'><div class='tip-info'><strong>微博</strong> "+user.statuses_count+" <strong>粉丝</strong> "+user.followers_count+" <strong>关注</strong> "+user.friends_count+" <strong>收藏</strong> "+user.favourites_count+"</div>";
+        if(user.description.length == 0)tip += "</div></div>";
+        else tip += "<div class='tip-intro'><strong>简介</strong> "+user.description+"</div></div><div class='clear'></div></div>";
+        return tip;
+      }
+    });
   return $wbContainer;
 }
 /**
@@ -642,7 +735,7 @@ function fParseURL(text){
   var urls = text.match(/http:\/\/\w+\.\w+[\/\w\-]*/ig);
   if(urls != undefined && urls.length !== 0){
     for (var i = 0; i < urls.length; i++) {
-      text = text.replace(urls[i], "<a href='"+urls[i]+"' target='_blank'>"+urls[i]+"</a>");
+      text = text.replace(urls[i], "<a href='"+urls[i]+"' rhref='"+urls[i]+"' target='_blank'>"+urls[i]+"</a>");
     }
   }
   //#
@@ -650,7 +743,7 @@ function fParseURL(text){
   if(tags != undefined && tags.length !== 0){
     for (var i = 0; i < tags.length; i++) {
       var tag = tags[i].substring(1, tags[i].length-1);
-      text = text.replace(tags[i], "<a href='http://huati.weibo.com/k/"+tag+"?from=501&order=time' target='_blank'>"+tags[i]+"</a>");
+      text = text.replace(tags[i], "<a href='http://huati.weibo.com/k/"+tag+"?from=501&order=time' rhref='http://huati.weibo.com/k/"+tag+"?from=501&order=time' target='_blank'>"+tags[i]+"</a>");
     }
   }
   //@
@@ -659,7 +752,7 @@ function fParseURL(text){
     for (var i = 0; i < users.length; i++) {
       var user = users[i].substring(1, users[i].length);
       // text = text.replace(users[i], "<a href='http://weibo.com/n/"+users[i]+"' target='_blank'>"+users[i]+"</a>");
-      text = text.replace(users[i], "<a href='#user_timeline' screen_name='"+user+"'>"+users[i]+"</a>");
+      text = text.replace(users[i], "<a href='#user_timeline' rhref='http://weibo.com/n/"+user+"' title='左键查看微博，右键打开主页' screen_name='"+user+"'>"+users[i]+"</a>");
     }
   }
   //表情符号[呵呵]
