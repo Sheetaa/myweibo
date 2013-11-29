@@ -2,6 +2,7 @@ var storage = window.localStorage,
     access_token,
     user,
     currentUser,
+    unreadCount,//对象
     flag_pageYOff_friends = 0,
     page_count_friends = 1,//公共微博的加载页数
     page_count_user = 1,//用户微博的加载页数
@@ -27,42 +28,25 @@ chrome.runtime.onMessage.addListener(function(message, sender, sendResponse){
   }
   // 未读@数
   var mentions = message.mention_status + message.mention_cmt;
-  if(mentions != 0){
-    if($("li:eq(2) .unreadCount").length == 0){
-      $("li:eq(2)").append("<div class='unreadCount'>"+mentions+"</div>");
-    } else {
-      $("li:eq(2) .unreadCount").text(mentions);
-    }
-  } else {
-    if($("li:eq(2) .unreadCount").length != 0){
-      $("li:eq(2) .unreadCount").remove();
-    }
-  }
+  fAddUnread(2, mentions);
   //未读评论数
-  if(message.cmt != 0){
-    if($("li:eq(3) .unreadCount").length == 0){
-      $("li:eq(3)").append("<div class='unreadCount'>"+message.cmt+"</div>");
-    } else {
-      $("li:eq(3) .unreadCount").text(message.cmt);
-    }
-  } else {
-    if($("li:eq(3) .unreadCount").length != 0){
-      $("li:eq(3) .unreadCount").remove();
-    }
-  }
+  fAddUnread(3, message.cmt);
   //粉丝
-  if(message.follower != 0){
-    if($("li:eq(4) .unreadCount").length == 0){
-      $("li:eq(4)").append("<div class='unreadCount'>"+message.follower+"</div>");
+  fAddUnread(4, message.follower);
+});
+function fAddUnread(index, number){
+  if(number != 0){
+    if($("li:eq("+index+") .unreadCount").length == 0){
+      $("li:eq("+index+")").append("<div class='unreadCount'>"+number+"</div>");
     } else {
-      $("li:eq(4) .unreadCount").text(message.follower);
+      $("li:eq("+index+") .unreadCount").text(number);
     }
   } else {
-    if($("li:eq(4) .unreadCount").length != 0){
-      $("li:eq(4) .unreadCount").remove();
+    if($("li:eq("+index+") .unreadCount").length != 0){
+      $("li:eq("+index+") .unreadCount").remove();
     }
   }
-});
+}
 
 $(function(){
   if(storage.getItem("access_token") == undefined || storage.getItem("access_token") == ""){
@@ -72,6 +56,11 @@ $(function(){
     uid = storage.getItem("uid");
     user = storage.getItem("user");
     currentUser = user.screen_name;
+    unreadCount = JSON.parse(storage.getItem("unreadCount"));
+    var mentions = unreadCount.mention_status + unreadCount.mention_cmt;
+    fAddUnread(2, mentions);
+    fAddUnread(3, unreadCount.cmt);
+    fAddUnread(4, unreadCount.follower);
   }
 
   $("#btnNewWinPopup").click(function(){
@@ -148,7 +137,6 @@ $(function(){
     if($(event.relatedTarget).text() == "首页"){
       flag_pageYOff_friends = $(window).scrollTop();
     }
-    console.log($("#followers").html());
     if($("li:eq(4) .unreadCount").length != 0 || $("#followers").html() == ""){
       $("#followers").html("");
       page_count_followers = 1;
@@ -171,29 +159,35 @@ $(function(){
     // console.log("window height: "+$(window).height());
     if($("#friends_timeline").attr("class") == "tab-pane active"){
       if($(window).scrollTop() + $(window).height() >= $(document).height()){
-        console.log("Send a new request");
+        console.log("Send a new friends_timeline request");
         fFriendsTimeline();
       }
     } else if($("#user_timeline").attr("class") == "tab-pane active"){
       if($(window).scrollTop() + $(window).height() >= $(document).height()){
-        console.log("Send a new request");
+        console.log("Send a new user_timeline request");
         fUserTimeline(currentUser);
       }
     } else if($("#mentions").attr("class") == "tab-pane active"){
       if($(window).scrollTop() + $(window).height() >= $(document).height()){
-        console.log("Send a new request");
+        console.log("Send a new mentions request");
         fMentions();
       }
     } else if($("#comments").attr("class") == "tab-pane active"){
       if($(window).scrollTop() + $(window).height() >= $(document).height()){
-        console.log("Send a new request");
+        console.log("Send a new comments request");
         fComments();
+      }
+    } else if($("#followers").attr("class") == "tab-pane active"){
+      if($(window).scrollTop() + $(window).height() >= $(document).height()){
+        console.log("Send a new followers request");
+        fFollowers();
       }
     }
   });
 
   $(".updateDialog .hint").html("你还可以输入<strong>140</strong>个字").css("color", "grey");
   $(".updateDialog textarea").on("input", function(event){
+    console.log(event);
     var count = 140 - $(this).val().length;
     if(count >= 0){
       if($(".updateDialog .hint").css("color") == "rgb(255, 0, 0)"){
@@ -204,6 +198,23 @@ $(function(){
       $(".updateDialog .hint").html("超过140字数限制").css("color", "red");
     }
   });
+  // var tag = false;
+  // var query = "";
+  // $(".updateDialog textarea").keypress(function(event){
+  //   console.log(event);
+  //   console.log(tag);
+  //   if(tag == false && event.which == 64){
+  //     tag = true;
+  //   } else if(tag == true){
+  //     if(event.which == 32)tag = false;
+  //     else {
+  //       var text = $(this).val();
+  //       query = text.substring(text.lastIndexOf("@")+1);
+  //       console.log(query);
+  //       fAtUsers(query);
+  //     }
+  //   }
+  // });
   $("#btn-publish").click(function(){
     var content = $(".updateDialog textarea").val();
     var option = $(".updateDialog select:selected").val();
@@ -229,6 +240,27 @@ $(function(){
     }
   });
 });
+/**
+*得到@用户时的联想建议
+*/
+function fAtUsers(query){
+  $.ajax({
+    url: 'https://api.weibo.com/2/search/suggestions/at_users.json',
+    type: 'get',
+    dataType: 'json',
+    async: false,
+    data: {
+      access_token: access_token,
+      q: query,
+      type: 0
+    },
+    success: function(data){
+      for (var i = 0; i < data.length; i++) {
+        console.log(data[i]);
+      }
+    }
+  });
+}
 
 /**
 *得到当前用户及其所关注的微博
@@ -335,14 +367,20 @@ function fFollowers(){
     data: {
       access_token: access_token,
       uid: uid,
-      // cursor: page_count_comments++,
+      cursor: page_count_comments,
       trim_status: 0
     },
     success: function(data){
       var followers = data.users;
-      for (var i = 0; i < followers.length; i++) {
-        var $fwContainer = fFollowerGenerator(followers[i]);
-        $("#followers").append($fwContainer);
+      if(page_count_followers < data.next_cursor){
+        page_count_followers = data.next_cursor;
+        for (var i = 0; i < followers.length; i++) {
+          var $fwContainer = fFollowerGenerator(followers[i]);
+          $("#followers").append($fwContainer);
+          fFollowerHover();
+        }
+      } else {
+        alert("到底了！");
       }
     }
   });
@@ -367,16 +405,16 @@ function fFollowerGenerator(follower){
   $fwFace.append($aFace);
   $fwDetail = $("<div class='fw-detail'></div>");
   var $fd0 = $("<div class='fd0'></div>");
-  $fd0.append("<a target='_blank' href='http://www.weibo.com/"+follower.profile_url+"' rhref='http://www.weibo.com/"+follower.profile_url+"'></a> <span>"+follower.location+"</span>");
+  $fd0.append("<a target='_blank' href='http://www.weibo.com/"+follower.profile_url+"' rhref='http://www.weibo.com/"+follower.profile_url+"'>"+follower.screen_name+"</a> <br/><span>"+follower.location+"</span>");
   var $fd1 = $("<div class='fd1'></div>");
   $fd1.append("关注 <a target='_blank' href='http://weibo.com/"+follower.id+"/follow' rhref='http://weibo.com/"+follower.id+"/follow'>"+follower.friends_count+"</a> 粉丝 <a target='_blank' href='http://weibo.com/"+follower.id+"/fans' rhref='http://weibo.com/"+follower.id+"/fans'>"+follower.followers_count+"</a> 微博  <a target='_blank' href='http://weibo.com/u"+follower.id+"' rhref='http://weibo.com/u"+follower.id+"'>"+follower.statuses_count+"</a>");
   var $fd2 = $("<div class='fd2'></div>");
-  $fd2.append("<button type='button' class='btn btn-xs' id='rmFollow'>移除粉丝</button>");
-  if(follower.follow_me == true){
-    $fd2.append("<button type='button' class='btn btn-xs' id='follow' disabled>相互关注</button>");
-  } else {
-    $fd2.append("<button type='button' class='btn btn-xs' id='follow'>关注</button>");
-  }
+  // $fd2.append("<a href id='rmFollow'>移除粉丝</a>");
+  // if(follower.follow_me == true){
+  //   $fd2.append("<a href id='follow' disabled>相互关注</a>");
+  // } else {
+  //   $fd2.append("<a href id='follow'>关注</a>");
+  // }
   $fwDetail.append($fd0, $fd1, $fd2);
   $fwContainer.append($fwFace, $fwDetail);
   $fwContainer.append("<div class='clear'></div>");
@@ -396,18 +434,25 @@ function fFollowerGenerator(follower){
 */
 function fWeiboHover(){
   $("div.wb-container").hover(function(){
-    $("div.username a", this).addClass("name-url");
-    $("div.wb-text a", this).addClass("text-url");
-    $("div.wb-from a", this).addClass("from-url");
-    $("div.wb-handle a", this).addClass("name-url");
-    $("div.wb-handle span", this).addClass("name-url");
+    $(".username a", this).addClass("name-url");
+    $(".wb-text a", this).addClass("text-url");
+    $(".wb-from a", this).addClass("from-url");
+    $(".wb-handle a", this).addClass("name-url");
+    $(".wb-handle span", this).addClass("name-url");
   }, function(){
-    $("div.username a", this).removeClass("name-url");
-    $("div.wb-text a", this).removeClass("text-url");
-    $("div.wb-from a", this).removeClass("from-url");
-    $("div.wb-handle a", this).removeClass("name-url");
-    $("div.wb-handle span", this).removeClass("name-url");
+    $(".username a", this).removeClass("name-url");
+    $(".wb-text a", this).removeClass("text-url");
+    $(".wb-from a", this).removeClass("from-url");
+    $(".wb-handle a", this).removeClass("name-url");
+    $(".wb-handle span", this).removeClass("name-url");
   });
+}
+function fFollowerHover(){
+  $("div.fw-container").hover(function(){
+    $("a", this).addClass("text-url");
+  }, function(){
+    $("a", this).removeClass("text-url");
+  })
 }
 
 /**

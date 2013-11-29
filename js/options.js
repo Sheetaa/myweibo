@@ -54,6 +54,19 @@ $(function(){
         }
       });
       $.ajax({
+        url: 'https://rm.api.weibo.com/2/remind/unread_count.json',
+        type: 'get',
+        dataType: 'json',
+        async: false,
+        data: {
+          access_token: access_token,
+          uid: uid
+        },
+        success: function(data){
+          storage.setItem("unreadCount", JSON.stringify(data));
+        }
+      });
+      $.ajax({
         url: 'https://api.weibo.com/2/users/show.json',
         type: 'get',
         dataType: 'json',
