@@ -186,35 +186,7 @@ $(function(){
   });
 
   $(".updateDialog .hint").html("你还可以输入<strong>140</strong>个字").css("color", "grey");
-  $(".updateDialog textarea").on("input", function(event){
-    console.log(event);
-    var count = 140 - $(this).val().length;
-    if(count >= 0){
-      if($(".updateDialog .hint").css("color") == "rgb(255, 0, 0)"){
-        $(".updateDialog .hint").html("你还可以输入<strong>140</strong>个字").css("color", "grey");
-      }
-      $(".updateDialog .hint strong").text(count);
-    } else {
-      $(".updateDialog .hint").html("超过140字数限制").css("color", "red");
-    }
-  });
-  // var tag = false;
-  // var query = "";
-  // $(".updateDialog textarea").keypress(function(event){
-  //   console.log(event);
-  //   console.log(tag);
-  //   if(tag == false && event.which == 64){
-  //     tag = true;
-  //   } else if(tag == true){
-  //     if(event.which == 32)tag = false;
-  //     else {
-  //       var text = $(this).val();
-  //       query = text.substring(text.lastIndexOf("@")+1);
-  //       console.log(query);
-  //       fAtUsers(query);
-  //     }
-  //   }
-  // });
+  
   $("#btn-publish").click(function(){
     var content = $(".updateDialog textarea").val();
     var option = $(".updateDialog select:selected").val();
@@ -239,28 +211,58 @@ $(function(){
       });
     }
   });
-});
-/**
-*得到@用户时的联想建议
-*/
-function fAtUsers(query){
-  $.ajax({
-    url: 'https://api.weibo.com/2/search/suggestions/at_users.json',
-    type: 'get',
-    dataType: 'json',
-    async: false,
-    data: {
-      access_token: access_token,
-      q: query,
-      type: 0
-    },
-    success: function(data){
-      for (var i = 0; i < data.length; i++) {
-        console.log(data[i]);
-      }
-    }
+
+  //触发对话框事件以后的初始化操作
+  $(".commentsDialog").on("shown.bs.modal", function(){
+    $("textarea", this).focus();
+    tag = false;
+    prev = -1;
+    query = "";
   });
-}
+  $(".repostDialog").on("shown.bs.modal", function(){
+    $("textarea", this).focus();
+    tag = false;
+    prev = -1;
+    query = "";
+  });
+  $(".replyDialog").on("shown.bs.modal", function(){
+    $("textarea", this).focus();
+    tag = false;
+    prev = -1;
+    query = "";
+  });
+  $(".updateDialog").on("shown.bs.modal", function(){
+    $("textarea", this).focus();
+    tag = false;
+    prev = -1;
+    query = "";
+  });
+  //为对话框绑定计算剩余字数和@用户联想建议的事件
+  $(".updateDialog textarea").on("input", function(event){
+    fHintCount($(this).parentElement);
+  });
+  $(".updateDialog textarea").keyup(function(event){
+    fTextareaAtUsers($(this).val(), event);
+  });
+  $(".repostDialog textarea").on("input", function(event){
+    fHintCount($(this).parentElement);
+  });
+  $(".repostDialog textarea").keyup(function(event){
+    fTextareaAtUsers($(this).val(), event);
+  });
+  $(".commentsDialog textarea").on("input", function(event){
+    fHintCount($(this).parentElement);
+  });
+  $(".commentsDialog textarea").keyup(function(event){
+    fTextareaAtUsers($(this).val(), event);
+  });
+  $(".replyDialog textarea").on("input", function(event){
+    fHintCount($(this).parentElement);
+  });
+  $(".replyDialog textarea").keyup(function(event){
+    fTextareaAtUsers($(this).val(), event);
+  });
+});
 
 /**
 *得到当前用户及其所关注的微博
@@ -634,17 +636,6 @@ function fWeiboGenerator(weibo, isRepost, isComment){
         $("textarea", $repost).val("");
         $(".hint", $repost).html("你还可以输入<strong>140</strong>个字").css("color", "grey");
       }
-      $("textarea", $repost).on("input", function(event){
-        var count = 140 - $(this).val().length;
-        if(count >= 0){
-          if($(".hint", $repost).css("color") == "rgb(255, 0, 0)"){
-            $(".hint", $repost).html("你还可以输入<strong>140</strong>个字").css("color", "grey");
-          }
-          $(".hint strong", $repost).text(count);
-        } else {
-          $(".hint", $repost).html("超过140字数限制").css("color", "red");
-        }
-      });
       $(".option", $repost).html("<input type='checkbox' id='rpcom' /><label for='rpcom'>转发的同时评论该微博</label><br/>");
       if(weibo.retweeted_status != undefined){
         $(".option", $repost).append("<input type='checkbox' id='rpcomrt' /><label for='rpcomrt'>转发的同时评论原微博</label>");
@@ -691,17 +682,6 @@ function fWeiboGenerator(weibo, isRepost, isComment){
       // $comments.dialog("option", "title", "评论 @"+user.screen_name+" 的微博");
       $("textarea", $comments).val("");
       $(".hint", $comments).html("你还可以输入<strong>140</strong>个字").css("color", "grey");
-      $("textarea", $comments).on("input", function(event){
-        var count = 140 - $(this).val().length;
-        if(count >= 0){
-          if($(".hint", $comments).css("color") == "rgb(255, 0, 0)"){
-            $(".hint", $comments).html("你还可以输入<strong>140</strong>个字").css("color", "grey");
-          }
-          $(".hint strong", $comments).text(count);
-        } else {
-          $(".hint", $comments).html("超过140字数限制").css("color", "red");
-        }
-      });
       $(".option", $comments).html("");
       if(weibo.retweeted_status !== undefined){
         $(".option", $comments).append("<input type='checkbox' id='comretweeted' /><label for='comretweeted'>评论原微博</label>");
@@ -732,15 +712,7 @@ function fWeiboGenerator(weibo, isRepost, isComment){
       });
       // $comments.dialog("open");
     });
-    $(".commentsDialog").on("shown.bs.modal", function(e){
-      $("textarea", this).focus();
-    });
-    $(".repostDialog").on("shown.bs.modal", function(e){
-      $("textarea", this).focus();
-    });
-    $(".replyDialog").on("shown.bs.modal", function(e){
-      $("textarea", this).focus();
-    });
+    
     if(weibo.favorited){
       $(".btn:eq(2)", $btnGroup).html("<span class='glyphicon glyphicon-heart'></span>");
     } else {
@@ -849,12 +821,58 @@ function fParseURL(text){
   $wbText.append(text);
   return $wbText;
 }
+
+/**
+*得到@用户时的联想建议
+*/
+var tag = false, 
+    prev = -1, cur, 
+    query = "";
+function fTextareaAtUsers(text, event){
+  cur = event.which;
+  if(tag == false && (prev == 50 && cur == 16 || prev == 16 && cur == 50)){
+    tag = true;
+  } else if(tag == true){
+    if(cur == 32){
+      if(text.charAt(text.length-1) == ' '){
+        tag = false;
+        prev = -1;
+        query = "";
+      }
+    } else {
+      query = text.substring(text.lastIndexOf("@")+1);
+      console.log(query);
+      fAtUsers(query);
+    }
+  }
+  prev = cur;
+}
+/**
+*Ajax @用户时的联想建议
+*/
+function fAtUsers(query){
+  $.ajax({
+    url: 'https://api.weibo.com/2/search/suggestions/at_users.json',
+    type: 'get',
+    dataType: 'json',
+    async: false,
+    data: {
+      access_token: access_token,
+      q: query,
+      type: 0
+    },
+    success: function(data){
+      for (var i = 0; i < data.length; i++) {
+        console.log(data[i]);
+      }
+    }
+  });
+}
 /**
 *实时计算剩余可输入字数
 **/
-function fHintCount($this, total){
-  var count = total - $("textarea", $this).val().length;
-  console.log(count);
+function fHintCount($this){
+  var count = 140 - $("textarea", $this).val().length;
   if(count >= 0){
     if($(".hint", $this).css("color") == "rgb(255, 0, 0)"){
       $(".hint", $this).html("你还可以输入<strong>140</strong>个字").css("color", "grey");
