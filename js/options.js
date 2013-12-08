@@ -127,8 +127,8 @@ function fAddUserInfo(){
 
 chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab){
   if(changeInfo.status === "loading" && tab.url.indexOf(REDIRECT_URI+"?code=") === 0){
-    var d = OAuth.decodeForm(tab.url);
-    $("#code").val(d[0][1]);
+    var code = tab.url.substring(tab.url.indexOf("=")+1);
+    $("#code").val(code);
     chrome.tabs.remove(tabId);
   }
 });

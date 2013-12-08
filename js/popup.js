@@ -213,54 +213,17 @@ $(function(){
   });
 
   //触发对话框事件以后的初始化操作
-  $(".commentsDialog").on("shown.bs.modal", function(){
-    $("textarea", this).focus();
-    tag = false;
-    prev = -1;
-    query = "";
-  });
-  $(".repostDialog").on("shown.bs.modal", function(){
-    $("textarea", this).focus();
-    tag = false;
-    prev = -1;
-    query = "";
-  });
-  $(".replyDialog").on("shown.bs.modal", function(){
-    $("textarea", this).focus();
-    tag = false;
-    prev = -1;
-    query = "";
-  });
-  $(".updateDialog").on("shown.bs.modal", function(){
+  $(".dialog").on("shown.bs.modal", function(){
     $("textarea", this).focus();
     tag = false;
     prev = -1;
     query = "";
   });
   //为对话框绑定计算剩余字数和@用户联想建议的事件
-  $(".updateDialog textarea").on("input", function(event){
-    fHintCount($(this).parentElement);
-  });
-  $(".updateDialog textarea").keyup(function(event){
-    fTextareaAtUsers($(this).val(), event);
-  });
-  $(".repostDialog textarea").on("input", function(event){
-    fHintCount($(this).parentElement);
-  });
-  $(".repostDialog textarea").keyup(function(event){
-    fTextareaAtUsers($(this).val(), event);
-  });
-  $(".commentsDialog textarea").on("input", function(event){
-    fHintCount($(this).parentElement);
-  });
-  $(".commentsDialog textarea").keyup(function(event){
-    fTextareaAtUsers($(this).val(), event);
-  });
-  $(".replyDialog textarea").on("input", function(event){
-    fHintCount($(this).parentElement);
-  });
-  $(".replyDialog textarea").keyup(function(event){
-    fTextareaAtUsers($(this).val(), event);
+  $("textarea").on("input", function(event){
+    fHintCount($(this).context.parentElement);
+  }).keyup(function(event){
+    fTextareaAtUsers($(this).val(), event.which);
   });
 });
 
@@ -547,7 +510,7 @@ function fWeiboGenerator(weibo, isRepost, isComment){
       for (var i = 0, m = pics.length; i < m; i++) {
         var thumbnail = pics[i].thumbnail_pic;
         var original = thumbnail.replace(/thumbnail/, "large");
-        $wbPics.append("<a class='fancy' rel='group"+fancyGroup+"' href='"+original+"'><img src='"+thumbnail+"' /></a>");
+        $wbPics.append("<a class='fancy' rel='group"+fancyGroup+"' href='"+original+"' rhref='"+original+"'><img src='"+thumbnail+"' /></a>");
         //$wbPics.append("<img src='"+pics[i].thumbnail_pic+"' />");
       }
       fancyGroup++;
@@ -828,8 +791,8 @@ function fParseURL(text){
 var tag = false, 
     prev = -1, cur, 
     query = "";
-function fTextareaAtUsers(text, event){
-  cur = event.which;
+function fTextareaAtUsers(text, which){
+  cur = which;
   if(tag == false && (prev == 50 && cur == 16 || prev == 16 && cur == 50)){
     tag = true;
   } else if(tag == true){
@@ -862,6 +825,7 @@ function fAtUsers(query){
       type: 0
     },
     success: function(data){
+      console.log(event);
       for (var i = 0; i < data.length; i++) {
         console.log(data[i]);
       }

@@ -3,6 +3,13 @@ body {
   font-size: 12px;
   text-align: center;
 }
+.back {
+  position: fixed;
+  top: 0;
+  height: 39px;
+  width: 3000px;
+  background-color: #f8f8f8;
+}
 .nav {
   position: fixed;
   width: 580px;
@@ -24,7 +31,7 @@ body {
 }
 .toolbar {
   position: fixed;
-  margin: 10px;
+  padding: 9px;
   top: 0px;
   right: 0px;
   background-color: #f8f8f8;
@@ -38,7 +45,7 @@ body {
   font-size: small;
 }
 #container {
-  margin: 0 auto;
+  margin: 40px auto 0 auto;
   width: 560px;
   text-align: left;
 }
@@ -56,7 +63,6 @@ a:hover {text-decoration: none; color: #428bca;}
 a:active {text-decoration: none; color: #428bca;}
 .tab-pane {
   float: left;
-  margin-top: 40px;
   text-align: left;
 }
 #update-container {
