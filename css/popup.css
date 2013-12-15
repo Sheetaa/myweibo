@@ -9,6 +9,7 @@ body {
   height: 39px;
   width: 3000px;
   background-color: #f8f8f8;
+  z-index: 998;
 }
 .nav {
   position: fixed;

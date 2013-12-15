@@ -720,13 +720,15 @@ function fWeiboGenerator(weibo, isRepost, isComment){
   $wbContainer.append($wbFace, $wbDetail);
 
   //绑定鼠标右击事件
-  $("a", $wbContainer).bind("contextmenu", function(e){
-    return false
-  }).mousedown(function(event){
-    if(event.which == 3 && $(this).attr("rhref")){
-      chrome.tabs.create({url: $(this).attr("rhref"), active: false});      
-    }
-  });
+  if(isRepost == false){
+    $("a", $wbContainer).bind("contextmenu", function(e){
+      return false
+    }).mousedown(function(event){
+      if(event.which == 3 && $(this).attr("rhref")){
+        chrome.tabs.create({url: $(this).attr("rhref"), active: false});      
+      }
+    });
+  }
   $(".wb-face a, .username a").tooltip({
       html: true,
       placement: 'auto',
