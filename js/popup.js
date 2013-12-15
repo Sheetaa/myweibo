@@ -448,7 +448,7 @@ function fWeiboGenerator(weibo, isRepost, isComment){
 
   var $wbContainer;
   if(isComment == true || (isComment == false && isRepost == false)){
-    $wbContainer = $("<div class='wb-container'></div>");
+    $wbContainer = $("<div class='wb-container' cid='"+weibo.id+"'></div>");
 
     //每条微博的头像部分
     var $wbFace = $("<div class='wb-face'></div>");
@@ -578,6 +578,7 @@ function fWeiboGenerator(weibo, isRepost, isComment){
         },
         success: function(data){
           alert("delete success");
+          $(".wb-container[cid="+weibo.id+"]").remove();
         }
       });
     });
@@ -777,7 +778,7 @@ function fParseURL(text){
     for (var i = 0; i < face.length; i++) {
       for (var j = 0; j < faces.length; j++) {
         if(face[i] == faces[j].value){
-          text = text.replace(face[i], "<img src='"+faces[j].icon+"'/>");
+          text = text.replace(face[i], "<img src='"+faces[j].icon+"' alt='"+face[i]+"'/>");
           break;
         }
       }
