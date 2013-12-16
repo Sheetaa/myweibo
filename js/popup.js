@@ -157,28 +157,20 @@ $(function(){
     // console.log("document scrollTop: "+$(document).scrollTop());
     // console.log("window scrollTop: "+$(window).scrollTop());
     // console.log("window height: "+$(window).height());
-    if($("#friends_timeline").attr("class") == "tab-pane active"){
-      if($(window).scrollTop() + $(window).height() >= $(document).height()){
+    if($(window).scrollTop() + $(window).height() >= $(document).height()){
+      if($("#friends_timeline").attr("class") == "tab-pane active"){
         console.log("Send a new friends_timeline request");
         fFriendsTimeline();
-      }
-    } else if($("#user_timeline").attr("class") == "tab-pane active"){
-      if($(window).scrollTop() + $(window).height() >= $(document).height()){
+      } else if($("#user_timeline").attr("class") == "tab-pane active"){
         console.log("Send a new user_timeline request");
         fUserTimeline(currentUser);
-      }
-    } else if($("#mentions").attr("class") == "tab-pane active"){
-      if($(window).scrollTop() + $(window).height() >= $(document).height()){
+      } else if($("#mentions").attr("class") == "tab-pane active"){
         console.log("Send a new mentions request");
         fMentions();
-      }
-    } else if($("#comments").attr("class") == "tab-pane active"){
-      if($(window).scrollTop() + $(window).height() >= $(document).height()){
+      } else if($("#comments").attr("class") == "tab-pane active"){
         console.log("Send a new comments request");
         fComments();
-      }
-    } else if($("#followers").attr("class") == "tab-pane active"){
-      if($(window).scrollTop() + $(window).height() >= $(document).height()){
+      } else if($("#followers").attr("class") == "tab-pane active"){
         console.log("Send a new followers request");
         fFollowers();
       }
@@ -186,7 +178,6 @@ $(function(){
   });
 
   $(".updateDialog .hint").html("你还可以输入<strong>140</strong>个字").css("color", "grey");
-  
   $("#btn-publish").click(function(){
     var content = $(".updateDialog textarea").val();
     var option = $(".updateDialog select:selected").val();
@@ -206,7 +197,6 @@ $(function(){
         },
         success: function(data){
           alert("发布成功");
-          $("#tabs").tabs("option", "active", 0);
         }
       });
     }
@@ -214,18 +204,113 @@ $(function(){
 
   //触发对话框事件以后的初始化操作
   $(".dialog").on("shown.bs.modal", function(){
-    $("textarea", this).focus();
+    setInsertPos($("textarea", this)[0], 0);
     tag = false;
     prev = -1;
     query = "";
   });
+  $('.dialog').on('hidden.bs.modal', function () {
+    $("textarea", this).val("");
+    $(".hint", this).html("你还可以输入<strong>140</strong>个字").css("color", "grey");
+  })
   //为对话框绑定计算剩余字数和@用户联想建议的事件
   $("textarea").on("input", function(event){
     fHintCount($(this).context.parentElement);
   }).keyup(function(event){
     fTextareaAtUsers($(this).val(), event.which);
   });
+
+  $(".btn-face").click(function(event){
+    event.preventDefault();
+    $(".faceBox").css("display", "block");
+  });
+  $(".close").click(function(){
+    $(".faceBox").css("display", "none");
+  });
+  $(".face").click(function(){
+    event.preventDefault();
+    var str = "["+event.target.alt+"]";
+    var textarea;
+    if($(".updateDialog").css("display") == "block"){
+        textarea = $(".updateDialog textarea")[0];
+    } else if($(".commentsDialog").css("display") == "block"){
+        textarea = $(".commentsDialog textarea")[0];
+    } else if($(".repostDialog").css("display") == "block"){
+        textarea = $(".repostDialog textarea")[0];
+    } else if($(".replyDialog").css("display") == "block"){
+        textarea = $(".replyDialog textarea")[0];
+    }
+    var pos = fInsertText(textarea, str);
+    $(".faceBox").css("display", "none");
+    setInsertPos(textarea, pos);
+    fHintCount(textarea.parentElement);
+  });
 });
+
+// This is the prefect get caret position function.
+// You can use it cross browsers.
+function getInsertPos(textbox) {
+    var iPos = 0;
+    if (textbox.selectionStart || textbox.selectionStart == "0") {
+        iPos = textbox.selectionStart;
+    }
+    else if (document.selection) {
+        textbox.focus();
+        var range = document.selection.createRange();
+        var rangeCopy = range.duplicate();
+        rangeCopy.moveToElementText(textbox);
+        while (range.compareEndPoints("StartToStart", rangeCopy) > 0) {
+            range.moveStart("character", -1);
+            iPos++;
+        }
+    }
+    return iPos;
+}
+
+// This is the prefect set caret position function.
+// You can use it cross browsers.
+function setInsertPos(textbox, iPos) {
+    textbox.focus();
+    if (textbox.selectionStart || textbox.selectionStart == "0") {
+        textbox.selectionStart = iPos;
+        textbox.selectionEnd = iPos;
+    }
+    else if (document.selection) {
+        var range = textbox.createTextRange();
+        range.moveStart("character", iPos);
+        range.collapse(true);
+        range.select();
+    }
+}
+/**
+* 向光标处插入文本，返回插入文本以后的位置
+**/
+function fInsertText(obj, str) {
+    var textRange,
+        start = obj.selectionStart,
+        end = obj.selectionEnd,
+        value = $(obj).val(),
+        re,rc;
+    if(document.selection && document.selection.createRange) {
+        textRange = document.selection.createRange();
+        textRange.text = str;
+
+        textRange.collapse();
+        
+        re = obj.createTextRange();
+        rc = re.duplicate();
+        re.moveToBookmark(textRange.getBookmark());
+        rc.setEndPoint('EndToStart', re);
+        return rc.text.length;
+    } else if(typeof start === 'number' && typeof end === 'number') {
+        value = value.substring(0,start) + str + value.substring(end);
+        $(obj).val(value);
+        return start+str.length;
+    } else {
+        $(obj).val(value+str);
+        return $(obj).val().length;
+    }
+}
 
 /**
 *得到当前用户及其所关注的微博
@@ -364,7 +449,7 @@ function fFollowerGenerator(follower){
   });
   $aFace.append("<img width='50' height='50' /><br/>");
   $("img", $aFace).attr({
-    title: follower.screen_name,
+    alt: follower.screen_name,
     src: follower.profile_image_url
   });
   $fwFace.append($aFace);
@@ -460,7 +545,7 @@ function fWeiboGenerator(weibo, isRepost, isComment){
     });
     $aFace.append("<img width='50' height='50' /><br/>");
     $("img", $aFace).attr({
-      title: user.screen_name,
+      alt: user.screen_name,
       src: user.profile_image_url
     });
     $wbFace.append($aFace);
