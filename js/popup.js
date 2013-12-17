@@ -836,16 +836,29 @@ function fParseURL(text){
   var urls = text.match(/http:\/\/\w+\.\w+[\/\w\-]*/ig);
   if(urls != undefined && urls.length !== 0){
     for (var i = 0; i < urls.length; i++) {
-      text = text.replace(urls[i], "<a href='"+urls[i]+"' rhref='"+urls[i]+"' target='_blank'>"+urls[i]+"</a>");
+      var url = urls[i].substring(5);
+      text = text.replace(urls[i], "<a href='"+urls[i]+"' rhref='"+urls[i]+"' target='_blank' type='url' replacement='"+url+"'></a>");
     }
+    var $text = $("<div>"+text+"</div>");
+    var $a = $("a[type=url]", $text);
+    for(var i = 0; i < $a.length; i++){
+      $a[i].innerHTML = "http:" + $($a[i]).attr('replacement');
+    }
+    text = $text.html();
   }
   //#
   var tags = text.match(/#.*?#/ig);
   if(tags != undefined && tags.length !== 0){
     for (var i = 0; i < tags.length; i++) {
       var tag = tags[i].substring(1, tags[i].length-1);
-      text = text.replace(tags[i], "<a href='http://huati.weibo.com/k/"+tag+"?from=501&order=time' rhref='http://huati.weibo.com/k/"+tag+"?from=501&order=time' target='_blank'>"+tags[i]+"</a>");
+      text = text.replace(tags[i], "<a href='http://huati.weibo.com/k/"+tag+"?from=501&order=time' rhref='http://huati.weibo.com/k/"+tag+"?from=501&order=time' target='_blank' type='huati' replacement='"+tag+"'></a>");
     }
+    var $text = $("<div>"+text+"</div>");
+    var $a = $("a[type=huati]", $text);
+    for(var i = 0; i < $a.length; i++){
+      $a[i].innerHTML = "#" + $($a[i]).attr('replacement') + "#";
+    }
+    text = $text.html();
   }
   //@
   var users = text.match(/@[\w\-\u4E00-\u9FA5\uf900-\ufa2d]*/ig);
@@ -853,8 +866,14 @@ function fParseURL(text){
     for (var i = 0; i < users.length; i++) {
       var user = users[i].substring(1, users[i].length);
       // text = text.replace(users[i], "<a href='http://weibo.com/n/"+users[i]+"' target='_blank'>"+users[i]+"</a>");
-      text = text.replace(users[i], "<a href='#user_timeline' rhref='http://weibo.com/n/"+user+"' title='左键查看微博，右键打开主页' screen_name='"+user+"'>"+users[i]+"</a>");
+      text = text.replace(users[i], "<a href='#user_timeline' rhref='http://weibo.com/n/"+user+"' title='左键查看微博，右键打开主页' type='at' replacement='"+user+"'></a>");
     }
+    var $text = $("<div>"+text+"</div>");
+    var $a = $("a[type=at]", $text);
+    for(var i = 0; i < $a.length; i++){
+      $a[i].innerHTML = "@" + $($a[i]).attr('replacement');
+    }
+    text = $text.html();
   }
   //表情符号[呵呵]
   // var face = text.match(/[[\w\u4E00-\u9FA5\uf900-\ufa2d]+?]/ig);
@@ -870,6 +889,7 @@ function fParseURL(text){
       }
     }
   }
+
   $wbText.append(text);
   return $wbText;
 }
