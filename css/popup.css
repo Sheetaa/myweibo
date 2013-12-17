@@ -165,7 +165,7 @@ select {
 }
 .faceBox {
   display: none;
-  position: absolute;
+  position: fixed;
   left: 25px;
   top: 165px;
   width: 500px;

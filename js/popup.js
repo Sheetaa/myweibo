@@ -857,13 +857,14 @@ function fParseURL(text){
     }
   }
   //表情符号[呵呵]
-  var face = text.match(/[[\w\u4E00-\u9FA5\uf900-\ufa2d]+?]/ig);
+  // var face = text.match(/[[\w\u4E00-\u9FA5\uf900-\ufa2d]+?]/ig);
+  var face = text.match(/\[.+?\]/ig);
   if(face != undefined && face.length !== 0){
     var faces = JSON.parse(storage.getItem("faces"));
     for (var i = 0; i < face.length; i++) {
       for (var j = 0; j < faces.length; j++) {
         if(face[i] == faces[j].value){
-          text = text.replace(face[i], "<img src='"+faces[j].icon+"' alt='"+face[i]+"'/>");
+          text = text.replace(face[i], "<img src='"+faces[j].icon+"'/>");
           break;
         }
       }
