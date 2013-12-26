@@ -217,9 +217,45 @@ $(function(){
   $("textarea").on("input", function(event){
     fHintCount($(this).context.parentElement);
   }).keyup(function(event){
-    fTextareaAtUsers($(this).val(), event.which);
+    if(event.which !== 37 && event.which !== 38 && event.which !== 39 && event.which !== 40){
+      fTextareaAtUsers($(this).val(), event.which);
+    } else if(event.which === 40 && $("ul.suggestWrap").css("display") === "block"){
+      if($("ul.suggestWrap li[class*=cur]").length === 0){
+        $("ul.suggestWrap li:eq(1)").addClass("cur");
+      } else {
+        for(var i = 1, length = $("ul.suggestWrap li").length; i < length; i++){
+          if($("ul.suggestWrap li:eq("+i+")").hasClass("cur")){
+            $("ul.suggestWrap li:eq("+i+")").removeClass("cur");
+            var next = i+1;
+            if(next >= length){
+              next = 1;
+            }
+            $("ul.suggestWrap li:eq("+next+")").addClass("cur");
+            break;
+          }
+        }
+      }
+    } else if(event.which === 13 && $("ul.suggestWrap").css("display") === "block" && $("ul.suggestWrap li[class*=cur]").length !== 0){
+      console.log('yaochang');
+      event.preventDefault();
+      for(var i = 1, length = $("ul.suggestWrap li").length; i < length; i++){
+        if($("ul.suggestWrap li:eq("+i+")").hasClass("cur")){
+          $("ul.suggestWrap li:eq("+i+")").removeClass("cur");
+          $(".suggestWrap").css("display", "none");
+          var textarea = getCurTextarea();
+          setInsertPos(textarea, fDeleteText(textarea, posAt));
+          var pos = fInsertText(textarea, $("ul.suggestWrap li:eq("+i+")").val()+' ');
+          setInsertPos(textarea, pos);
+          tag = false;
+          prev = -1;
+          posAt = -1;
+          query = "";
+        }
+      }
+    }
   });
 
+  // 辅助输入表情符号事件绑定
   $(".btn-face").click(function(event){
     event.preventDefault();
     $(".faceBox").css("display", "block");
@@ -230,22 +266,55 @@ $(function(){
   $(".face").click(function(){
     event.preventDefault();
     var str = "["+event.target.alt+"]";
-    var textarea;
-    if($(".updateDialog").css("display") == "block"){
-        textarea = $(".updateDialog textarea")[0];
-    } else if($(".commentsDialog").css("display") == "block"){
-        textarea = $(".commentsDialog textarea")[0];
-    } else if($(".repostDialog").css("display") == "block"){
-        textarea = $(".repostDialog textarea")[0];
-    } else if($(".replyDialog").css("display") == "block"){
-        textarea = $(".replyDialog textarea")[0];
-    }
+    var textarea = getCurTextarea();
     var pos = fInsertText(textarea, str);
     $(".faceBox").css("display", "none");
     setInsertPos(textarea, pos);
     fHintCount(textarea.parentElement);
   });
+
+  // 辅助输入@昵称事件绑定
+  $("ul.suggestWrap").on('click', 'li', function(event){
+    if(this.getAttribute('value') != null){
+      $(".suggestWrap").css("display", "none");
+      var textarea = getCurTextarea();
+      setInsertPos(textarea, fDeleteText(textarea, posAt));
+      var pos = fInsertText(textarea, this.getAttribute('value')+' ');
+      setInsertPos(textarea, pos);
+      tag = false;
+      prev = -1;
+      posAt = -1;
+      query = "";
+    }
+  });
+  // }).on('keyup', function(event){
+  //   if(event.which === 40){
+  //     console.log($("li[class*=cur]", this));
+  //     if($("li[class*=cur]", this) == null){
+  //       $("li:eq(1)", this).addClass("cur");
+  //     } else {
+
+  //     }
+  //   }
+  // });
 });
+
+/**
+* 得到当前显示的textarea
+**/
+function getCurTextarea(){
+  var textarea;
+  if($(".updateDialog").css("display") == "block"){
+      textarea = $(".updateDialog textarea")[0];
+  } else if($(".commentsDialog").css("display") == "block"){
+      textarea = $(".commentsDialog textarea")[0];
+  } else if($(".repostDialog").css("display") == "block"){
+      textarea = $(".repostDialog textarea")[0];
+  } else if($(".replyDialog").css("display") == "block"){
+      textarea = $(".replyDialog textarea")[0];
+  }
+  return textarea;
+}
 
 // This is the prefect get caret position function.
 // You can use it cross browsers.
@@ -310,6 +379,20 @@ function fInsertText(obj, str) {
         $(obj).val(value+str);
         return $(obj).val().length;
     }
+}
+
+/**
+* 删除指定位置到光标位置的文本，返回删除文本以后的位置
+**/
+function fDeleteText(obj, pos){
+  var start = obj.selectionStart,
+      end = obj.selectionEnd,
+      value = $(obj).val();
+  if(typeof start === 'number' && typeof end === 'number'){
+    value = value.substring(0, pos) + value.substring(end);
+    $(obj).val(value);
+    return pos;
+  }
 }
 
 /**
@@ -502,7 +585,7 @@ function fFollowerHover(){
     $("a", this).addClass("text-url");
   }, function(){
     $("a", this).removeClass("text-url");
-  })
+  });
 }
 
 /**
@@ -898,21 +981,26 @@ function fParseURL(text){
 *得到@用户时的联想建议
 */
 var tag = false, 
-    prev = -1, cur, 
+    prev = -1,
+    cur,
+    posAt = -1, //@字符的位置
     query = "";
 function fTextareaAtUsers(text, which){
   cur = which;
+  var insertPos = getInsertPos(getCurTextarea());
   if(tag == false && (prev == 50 && cur == 16 || prev == 16 && cur == 50)){
     tag = true;
+    posAt = insertPos;
   } else if(tag == true){
     if(cur == 32){
       if(text.charAt(text.length-1) == ' '){
         tag = false;
         prev = -1;
+        posAt = -1;
         query = "";
       }
     } else {
-      query = text.substring(text.lastIndexOf("@")+1);
+      query = text.substring(posAt, insertPos);
       console.log(query);
       fAtUsers(query);
     }
@@ -938,9 +1026,32 @@ function fAtUsers(query){
       for (var i = 0; i < data.length; i++) {
         console.log(data[i]);
       }
+      fAtSelectBox(data);
     }
   });
 }
+/**
+*Ajax @用户时的联想建议
+*/
+function fAtSelectBox(data){
+  if(data != null && data.length != 0){
+    $("ul.suggestWrap").html("<li class='suggest_title'>选择昵称或轻敲空格完成输入</li>");
+    for(var i = 0; i < data.length; i++){
+      $(".suggestWrap").append("<li value='"+data[i].nickname+"'>"+data[i].nickname+"</li>");
+    }
+    $("ul.suggestWrap").css({
+      "display": "block",
+      "top": "100px",
+      "left": "100px"
+    });
+    $("ul.suggestWrap li").hover(function(){
+      $(this).addClass('cur');
+    }, function(){
+      $(this).removeClass('cur');
+    });
+  }
+}
+
 /**
 *实时计算剩余可输入字数
 **/
