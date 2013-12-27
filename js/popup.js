@@ -218,21 +218,14 @@ $(function(){
     fHintCount($(this).context.parentElement);
   }).keypress(function(event){
     var $suggestWrap = $("ul.suggestWrap");
-    if(event.which === 13 && $suggestWrap.css("display") === "block" && $("li[class*=cur]", $suggestWrap).length !== 0){
-      console.log('yaochang');
+    posCur = getInsertPos(this);
+    if($suggestWrap.css("display") === "block" && event.which === 13 && $("li[class*=cur]", $suggestWrap).length !== 0){
+      // 回车键事件：将选中的li值插入textarea
       event.preventDefault();
       for(var i = 1, length = $("li", $suggestWrap).length; i < length; i++){
         if($("li:eq("+i+")", $suggestWrap).hasClass("cur")){
           $("li:eq("+i+")", $suggestWrap).removeClass("cur");
-          var textarea = getCurTextarea();
-          setInsertPos(textarea, fDeleteText(textarea, posAt));
-          var pos = fInsertText(textarea, $("li:eq("+i+")", $suggestWrap).val()+' ');
-          setInsertPos(textarea, pos);
-          $suggestWrap.css("display", "none");
-          tag = false;
-          prev = -1;
-          posAt = -1;
-          query = "";
+          fInsertSuggestion($("li", $suggestWrap)[i].getAttribute('value'));
           break;
         }
       }
@@ -240,57 +233,16 @@ $(function(){
   }).keyup(function(event){
     var $suggestWrap = $("ul.suggestWrap");
     if(event.which !== 37 && event.which !== 38 && event.which !== 39 && event.which !== 40){
+      // 请求联想昵称请求并显示
       fTextareaAtUsers($(this).val(), event.which);
-    } else if(event.which === 40 && $suggestWrap.css("display") === "block"){
-      if($("li[class*=cur]", $suggestWrap).length === 0){
-        $("li:eq(1)", $suggestWrap).addClass("cur");
-      } else {
-        for(var i = 1, length = $("li", $suggestWrap).length; i < length; i++){
-          if($("li:eq("+i+")", $suggestWrap).hasClass("cur")){
-            $("li:eq("+i+")", $suggestWrap).removeClass("cur");
-            var next = i+1;
-            if(next >= length){
-              next = 1;
-            }
-            $("li:eq("+next+")", $suggestWrap).addClass("cur");
-            break;
-          }
-        }
-      }
-    } else if(event.which === 38 && $suggestWrap.css("display") === "block"){
-      setInsertPos(this, posAt);
-      if($("li[class*=cur]", $suggestWrap).length === 0){
-        $("li:eq(1)", $suggestWrap).addClass("cur");
-      } else {
-        for(var i = 1, length = $("li", $suggestWrap).length; i < length; i++){
-          if($("li:eq("+i+")", $suggestWrap).hasClass("cur")){
-            $("li:eq("+i+")", $suggestWrap).removeClass("cur");
-            var next = i-1;
-            if(next <= 0){
-              next = length-1;
-            }
-            $("li:eq("+next+")", $suggestWrap).addClass("cur");
-            break;
-          }
-        }
-      }
-    } else if(event.which === 13 && $suggestWrap.css("display") === "block" && $("li[class*=cur]", $suggestWrap).length !== 0){
-      console.log('yaochang');
-      event.preventDefault();
-      for(var i = 1, length = $("li", $suggestWrap).length; i < length; i++){
-        if($("li:eq("+i+")", $suggestWrap).hasClass("cur")){
-          $("li:eq("+i+")", $suggestWrap).removeClass("cur");
-          var textarea = getCurTextarea();
-          setInsertPos(textarea, fDeleteText(textarea, posAt));
-          var pos = fInsertText(textarea, $("li:eq("+i+")", $suggestWrap).val()+' ');
-          setInsertPos(textarea, pos);
-          $suggestWrap.css("display", "none");
-          tag = false;
-          prev = -1;
-          posAt = -1;
-          query = "";
-          break;
-        }
+    } else if($suggestWrap.css("display") == "block"){
+      if(event.which === 40){
+        // 键盘down键操作
+        fSelectNext($suggestWrap, true);
+      } else if(event.which === 38){
+        // 键盘up键操作
+        setInsertPos(this, posCur+1);
+        fSelectNext($suggestWrap, false);
       }
     }
   });
@@ -315,29 +267,55 @@ $(function(){
 
   // 辅助输入@昵称事件绑定
   $("ul.suggestWrap").on('click', 'li', function(event){
-    if(this.getAttribute('value') != null){
-      $(".suggestWrap").css("display", "none");
-      var textarea = getCurTextarea();
-      setInsertPos(textarea, fDeleteText(textarea, posAt));
-      var pos = fInsertText(textarea, this.getAttribute('value')+' ');
-      setInsertPos(textarea, pos);
-      tag = false;
-      prev = -1;
-      posAt = -1;
-      query = "";
-    }
+    fInsertSuggestion(this.getAttribute('value'));
   });
-  // }).on('keyup', function(event){
-  //   if(event.which === 40){
-  //     console.log($("li[class*=cur]", this));
-  //     if($("li[class*=cur]", this) == null){
-  //       $("li:eq(1)", this).addClass("cur");
-  //     } else {
-
-  //     }
-  //   }
-  // });
 });
+
+/**
+* 香textarea中填入已选择的cur选项的value，被绑定到鼠标和键盘事件上
+**/
+function fInsertSuggestion(value){
+  if(value != null){
+    $(".suggestWrap").css("display", "none");
+    var textarea = getCurTextarea();
+    setInsertPos(textarea, fDeleteText(textarea, posAt));
+    var pos = fInsertText(textarea, value+' ');
+    setInsertPos(textarea, pos);
+    tag = false;
+    prev = -1;
+    posAt = -1;
+    query = "";
+  }
+}
+
+/**
+* 选择suggestWrap中下一个可选项，tag为true时表示后一个，为false时表示前一个
+**/
+function fSelectNext($suggestWrap, tag){
+  if($("li[class*=cur]", $suggestWrap).length === 0){
+    $("li:eq(1)", $suggestWrap).addClass("cur");
+  } else {
+    for(var i = 1, length = $("li", $suggestWrap).length; i < length; i++){
+      if($("li:eq("+i+")", $suggestWrap).hasClass("cur")){
+        $("li:eq("+i+")", $suggestWrap).removeClass("cur");
+        var next;
+        if(tag){
+          next = i+1;
+          if(next >= length){
+            next = 1;
+          }
+        } else {
+          next = i-1;
+          if(next <= 0){
+            next = length-1;
+          }
+        }
+        $("li:eq("+next+")", $suggestWrap).addClass("cur");
+        break;
+      }
+    }
+  }
+}
 
 /**
 * 得到当前显示的textarea
@@ -1024,6 +1002,7 @@ var tag = false,
     prev = -1,
     cur,
     posAt = -1, //@字符的位置
+    posCur = -1,
     query = "";
 function fTextareaAtUsers(text, which){
   cur = which;
