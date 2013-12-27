@@ -216,40 +216,80 @@ $(function(){
   //为对话框绑定计算剩余字数和@用户联想建议的事件
   $("textarea").on("input", function(event){
     fHintCount($(this).context.parentElement);
-  }).keyup(function(event){
-    if(event.which !== 37 && event.which !== 38 && event.which !== 39 && event.which !== 40){
-      fTextareaAtUsers($(this).val(), event.which);
-    } else if(event.which === 40 && $("ul.suggestWrap").css("display") === "block"){
-      if($("ul.suggestWrap li[class*=cur]").length === 0){
-        $("ul.suggestWrap li:eq(1)").addClass("cur");
-      } else {
-        for(var i = 1, length = $("ul.suggestWrap li").length; i < length; i++){
-          if($("ul.suggestWrap li:eq("+i+")").hasClass("cur")){
-            $("ul.suggestWrap li:eq("+i+")").removeClass("cur");
-            var next = i+1;
-            if(next >= length){
-              next = 1;
-            }
-            $("ul.suggestWrap li:eq("+next+")").addClass("cur");
-            break;
-          }
-        }
-      }
-    } else if(event.which === 13 && $("ul.suggestWrap").css("display") === "block" && $("ul.suggestWrap li[class*=cur]").length !== 0){
+  }).keypress(function(event){
+    var $suggestWrap = $("ul.suggestWrap");
+    if(event.which === 13 && $suggestWrap.css("display") === "block" && $("li[class*=cur]", $suggestWrap).length !== 0){
       console.log('yaochang');
       event.preventDefault();
-      for(var i = 1, length = $("ul.suggestWrap li").length; i < length; i++){
-        if($("ul.suggestWrap li:eq("+i+")").hasClass("cur")){
-          $("ul.suggestWrap li:eq("+i+")").removeClass("cur");
-          $(".suggestWrap").css("display", "none");
+      for(var i = 1, length = $("li", $suggestWrap).length; i < length; i++){
+        if($("li:eq("+i+")", $suggestWrap).hasClass("cur")){
+          $("li:eq("+i+")", $suggestWrap).removeClass("cur");
           var textarea = getCurTextarea();
           setInsertPos(textarea, fDeleteText(textarea, posAt));
-          var pos = fInsertText(textarea, $("ul.suggestWrap li:eq("+i+")").val()+' ');
+          var pos = fInsertText(textarea, $("li:eq("+i+")", $suggestWrap).val()+' ');
           setInsertPos(textarea, pos);
+          $suggestWrap.css("display", "none");
           tag = false;
           prev = -1;
           posAt = -1;
           query = "";
+          break;
+        }
+      }
+    }
+  }).keyup(function(event){
+    var $suggestWrap = $("ul.suggestWrap");
+    if(event.which !== 37 && event.which !== 38 && event.which !== 39 && event.which !== 40){
+      fTextareaAtUsers($(this).val(), event.which);
+    } else if(event.which === 40 && $suggestWrap.css("display") === "block"){
+      if($("li[class*=cur]", $suggestWrap).length === 0){
+        $("li:eq(1)", $suggestWrap).addClass("cur");
+      } else {
+        for(var i = 1, length = $("li", $suggestWrap).length; i < length; i++){
+          if($("li:eq("+i+")", $suggestWrap).hasClass("cur")){
+            $("li:eq("+i+")", $suggestWrap).removeClass("cur");
+            var next = i+1;
+            if(next >= length){
+              next = 1;
+            }
+            $("li:eq("+next+")", $suggestWrap).addClass("cur");
+            break;
+          }
+        }
+      }
+    } else if(event.which === 38 && $suggestWrap.css("display") === "block"){
+      setInsertPos(this, posAt);
+      if($("li[class*=cur]", $suggestWrap).length === 0){
+        $("li:eq(1)", $suggestWrap).addClass("cur");
+      } else {
+        for(var i = 1, length = $("li", $suggestWrap).length; i < length; i++){
+          if($("li:eq("+i+")", $suggestWrap).hasClass("cur")){
+            $("li:eq("+i+")", $suggestWrap).removeClass("cur");
+            var next = i-1;
+            if(next <= 0){
+              next = length-1;
+            }
+            $("li:eq("+next+")", $suggestWrap).addClass("cur");
+            break;
+          }
+        }
+      }
+    } else if(event.which === 13 && $suggestWrap.css("display") === "block" && $("li[class*=cur]", $suggestWrap).length !== 0){
+      console.log('yaochang');
+      event.preventDefault();
+      for(var i = 1, length = $("li", $suggestWrap).length; i < length; i++){
+        if($("li:eq("+i+")", $suggestWrap).hasClass("cur")){
+          $("li:eq("+i+")", $suggestWrap).removeClass("cur");
+          var textarea = getCurTextarea();
+          setInsertPos(textarea, fDeleteText(textarea, posAt));
+          var pos = fInsertText(textarea, $("li:eq("+i+")", $suggestWrap).val()+' ');
+          setInsertPos(textarea, pos);
+          $suggestWrap.css("display", "none");
+          tag = false;
+          prev = -1;
+          posAt = -1;
+          query = "";
+          break;
         }
       }
     }
