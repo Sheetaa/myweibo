@@ -631,14 +631,6 @@ function fWeiboGenerator(weibo, isRepost, isComment){
     profile_image_url: weibo.user.profile_image_url,
     profile_url: weibo.user.profile_url
   };
-  // var tip = "<div class='tip'><div class='tip-face'><img src='"+user.profile_image_url+"'/></div>" +
-  //           "<div class='tip-right'><div class='tip-name'>"+user.screen_name;
-  // if(user.verified){
-  //   tip += "<img src='images/verified.gif' />";
-  // }
-  // tip += "</div>" + "<div class='tip-info'><strong>微博</strong> "+user.statuses_count+" <strong>粉丝</strong> "+user.followers_count+" <strong>关注</strong> "+user.friends_count+" <strong>收藏</strong> "+user.favourites_count+"</div>";
-  // if(user.description.length == 0)tip += "</div></div>";
-  // else tip += "<div class='tip-intro'><strong>简介</strong> "+user.description+"</div></div><div class='clear'></div></div>";
 
   var $wbContainer;
   if(isComment == true || (isComment == false && isRepost == false)){
@@ -677,7 +669,7 @@ function fWeiboGenerator(weibo, isRepost, isComment){
 
   var $username = $("<div class='username'></div>").append($aName);
   if(user.verified){
-    $username.append("<img src='images/verified.gif' />");
+    $username.append("<img width='11' height='10' src='images/verified.gif' />");
   }
   $wbDetail.append($username);
   var $wbText = fParseURL(weibo.text);
@@ -704,7 +696,7 @@ function fWeiboGenerator(weibo, isRepost, isComment){
       for (var i = 0, m = pics.length; i < m; i++) {
         var thumbnail = pics[i].thumbnail_pic;
         var original = thumbnail.replace(/thumbnail/, "large");
-        $wbPics.append("<a class='fancy' rel='group"+fancyGroup+"' href='"+original+"' rhref='"+original+"'><img src='"+thumbnail+"' /></a>");
+        $wbPics.append("<a class='fancy' rel='group"+fancyGroup+"' href='"+original+"' rhref='"+original+"'><img height='120' src='"+thumbnail+"' /></a>");
         //$wbPics.append("<img src='"+pics[i].thumbnail_pic+"' />");
       }
       fancyGroup++;
@@ -992,7 +984,7 @@ function fParseURL(text){
     for (var i = 0; i < face.length; i++) {
       for (var j = 0; j < faces.length; j++) {
         if(face[i] == faces[j].value){
-          text = text.replace(face[i], "<img src='"+faces[j].icon+"'/>");
+          text = text.replace(face[i], "<img width='22' height='22' src='"+faces[j].icon+"'/>");
           break;
         }
       }
