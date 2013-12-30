@@ -208,26 +208,37 @@ $(function(){
     tag = false;
     prev = -1;
     query = "";
+    posAt = -1;
   });
   $('.dialog').on('hidden.bs.modal', function () {
     $("textarea", this).val("");
     $(".hint", this).html("你还可以输入<strong>140</strong>个字").css("color", "grey");
+    $("ul.suggestWrap").css("display", "none");
   })
   //为对话框绑定计算剩余字数和@用户联想建议的事件
   $("textarea").on("input", function(event){
     fHintCount($(this).context.parentElement);
-  }).keypress(function(event){
+  }).keydown(function(event){
     var $suggestWrap = $("ul.suggestWrap");
-    posCur = getInsertPos(this);
-    if($suggestWrap.css("display") === "block" && event.which === 13 && $("li[class*=cur]", $suggestWrap).length !== 0){
-      // 回车键事件：将选中的li值插入textarea
-      event.preventDefault();
-      for(var i = 1, length = $("li", $suggestWrap).length; i < length; i++){
-        if($("li:eq("+i+")", $suggestWrap).hasClass("cur")){
-          $("li:eq("+i+")", $suggestWrap).removeClass("cur");
-          fInsertSuggestion($("li", $suggestWrap)[i].getAttribute('value'));
-          break;
+    if($suggestWrap.css("display") === "block"){
+      if(event.which === 13 && $("li[class*=cur]", $suggestWrap).length !== 0){
+        // 回车键事件：将选中的li值插入textarea
+        event.preventDefault();
+        for(var i = 1, length = $("li", $suggestWrap).length; i < length; i++){
+          if($("li:eq("+i+")", $suggestWrap).hasClass("cur")){
+            $("li:eq("+i+")", $suggestWrap).removeClass("cur");
+            fInsertSuggestion($("li", $suggestWrap)[i].getAttribute('value'));
+            break;
+          }
         }
+      } else if(event.which === 40){
+        // 键盘down键操作
+        event.preventDefault();
+        fSelectNext($suggestWrap, true);
+      } else if(event.which === 38){
+        // 键盘up键操作
+        event.preventDefault();
+        fSelectNext($suggestWrap, false);
       }
     }
   }).keyup(function(event){
@@ -235,15 +246,12 @@ $(function(){
     if(event.which !== 37 && event.which !== 38 && event.which !== 39 && event.which !== 40){
       // 请求联想昵称请求并显示
       fTextareaAtUsers($(this).val(), event.which);
-    } else if($suggestWrap.css("display") == "block"){
-      if(event.which === 40){
-        // 键盘down键操作
-        fSelectNext($suggestWrap, true);
-      } else if(event.which === 38){
-        // 键盘up键操作
-        setInsertPos(this, posCur+1);
-        fSelectNext($suggestWrap, false);
-      }
+    }
+  }).blur(function(){
+    $("ul.suggestWrap").css("display", "none");
+  }).focus(function(){
+    if(tag === true){
+      $("ul.suggestWrap").css("display", "block");
     }
   });
 
@@ -1002,7 +1010,6 @@ var tag = false,
     prev = -1,
     cur,
     posAt = -1, //@字符的位置
-    posCur = -1,
     query = "";
 function fTextareaAtUsers(text, which){
   cur = which;
@@ -1021,7 +1028,14 @@ function fTextareaAtUsers(text, which){
     } else {
       query = text.substring(posAt, insertPos);
       console.log(query);
-      fAtUsers(query);
+      if(query === null || query === ''){
+        if($("ul.suggestWrap").css("display") === "block"){
+          $("ul.suggestWrap").css("display", 'none');
+        }
+      } else {
+        var curVal = text.substring(0, insertPos);
+        fAtUsers(query);
+      }
     }
   }
   prev = cur;
@@ -1060,8 +1074,8 @@ function fAtSelectBox(data){
     }
     $("ul.suggestWrap").css({
       "display": "block",
-      "top": "100px",
-      "left": "100px"
+      "top": "150px",
+      "left": "75px"
     });
     $("ul.suggestWrap li").hover(function(){
       $(this).addClass('cur');
