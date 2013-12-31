@@ -7,12 +7,12 @@ var storage = window.localStorage,
     statusUnread = 0,
     esUnread;// 除了未读微博数以外的所有未读消息数目
 
-chrome.browserAction.onClicked.addListener(function(){
+/*chrome.browserAction.onClicked.addListener(function(){
     chrome.windows.create({url: "popup.html", type: "popup", width: 620, height: 700});
-})
+})*/
 
 if(storage.getItem("access_token") == null){
-    chrome.browserAction.setIcon({path:"images/weibo_offline.jpg"});
+    chrome.browserAction.setIcon({path:"images/amazing_weibo_offline.jpg"});
     chrome.browserAction.setBadgeText({text: ""});
 }
 setInterval(function(){

@@ -10,7 +10,8 @@
   },
   "browser_action": {
     "default_icon": "images/weibo.png",
-    "default title": "超凡微博"
+    "default_title": "超凡微博",
+    "default_popup": "popup.html"
   },
   "options_page": "options.html",
   "permissions": [
