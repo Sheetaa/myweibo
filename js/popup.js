@@ -696,7 +696,7 @@ function fWeiboGenerator(weibo, isRepost, isComment){
       for (var i = 0, m = pics.length; i < m; i++) {
         var thumbnail = pics[i].thumbnail_pic;
         var original = thumbnail.replace(/thumbnail/, "large");
-        $wbPics.append("<a class='fancy' rel='group"+fancyGroup+"' href='"+original+"' rhref='"+original+"'><img height='120' src='"+thumbnail+"' /></a>");
+        $wbPics.append("<a class='fancy' rel='group"+fancyGroup+"' href='"+original+"' rhref='"+original+"'><img src='"+thumbnail+"' /></a>");
         //$wbPics.append("<img src='"+pics[i].thumbnail_pic+"' />");
       }
       fancyGroup++;

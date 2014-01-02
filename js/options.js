@@ -81,7 +81,7 @@ $(function(){
           storage.setItem("user", JSON.stringify(data));
           $("#logout").css("display", "block");
           $("#login").css("display", "none");
-          chrome.browserAction.setIcon({path:"images/weibo.png"});
+          chrome.browserAction.setIcon({path:"images/amazing_weibo24.png"});
           chrome.browserAction.setBadgeText({text: ""});
           alert("添加成功");
         }
@@ -103,7 +103,7 @@ $(function(){
         $("#code").val("");
         $("#logout").css("display", "none");
         $("#login").css("display", "block");
-        chrome.browserAction.setIcon({path:"images/weibo_offline.jpg"});
+        chrome.browserAction.setIcon({path:"images/amazing_weibo_offline24.png"});
         chrome.browserAction.setBadgeText({text: ""});
         alert("注销成功");
       }

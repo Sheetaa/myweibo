@@ -8,14 +8,14 @@ body {
   top: 0;
   height: 39px;
   width: 3000px;
-  background-color: #f8f8f8;
+  background-color: #e0e0e0;
   z-index: 998;
 }
 .nav {
   position: fixed;
   width: 580px;
   top: 0px;
-  background-color: #f8f8f8;
+  background-color: #e0e0e0;
   z-index: 998;
 }
 .unreadCount {
@@ -35,7 +35,7 @@ body {
   padding: 9px;
   top: 0px;
   right: 0px;
-  background-color: #f8f8f8;
+  background-color: #e0e0e0;
   z-index: 999;
 }
 .glyphicon {
@@ -101,7 +101,7 @@ a:active {text-decoration: none; color: #428bca;}
   min-width: 466px;
   margin-top: 10px;
   padding: 5px;
-  background-color: #f8f8f8;
+  background-color: #e0e0e0;
 }
 .wb-media-expand .wb-detail {
   width: 100%;

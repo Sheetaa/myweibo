@@ -12,7 +12,7 @@ var storage = window.localStorage,
 })*/
 
 if(storage.getItem("access_token") == null){
-    chrome.browserAction.setIcon({path:"images/amazing_weibo_offline.jpg"});
+    chrome.browserAction.setIcon({path:"images/amazing_weibo_offline24.png"});
     chrome.browserAction.setBadgeText({text: ""});
 }
 setInterval(function(){
@@ -51,6 +51,20 @@ setInterval(function(){
     if(storage.hasOwnProperty("unreadCount")){
         if(totalUnread != 0){
             chrome.browserAction.setBadgeText({text: totalUnread+""});
+        }
+        if(esUnread !== 0){
+            var content = "您有";
+            if(unreadCount.follower !== 0){
+                content += unreadCount.follower + "个新粉丝 ";
+            }
+            if(unreadCount.cmt !== 0){
+                content += unreadCount.cmt + "条新评论 ";
+            }
+            if(unreadCount.mention_cmt + unreadCount.mention_status !== 0){
+                content += unreadCount.mention_cmt + unreadCount.mention_status + "条新@ ";
+            }
+            var notification = webkitNotifications.createNotification('images/amazing_weibo48.png', '新消息', content);
+            notification.show();
         }
         chrome.runtime.sendMessage(unreadCount);
     }
