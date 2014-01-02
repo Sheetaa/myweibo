@@ -50,7 +50,7 @@ function fAddUnread(index, number){
 
 $(function(){
   if(storage.getItem("access_token") == undefined || storage.getItem("access_token") == ""){
-    alert("请先添加账户");
+    chrome.tabs.create({url: "options.html"});
   } else {
     access_token = storage.getItem("access_token");
     uid = storage.getItem("uid");

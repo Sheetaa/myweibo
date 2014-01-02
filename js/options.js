@@ -8,8 +8,9 @@ var storage = window.localStorage,
     user;
 
 $(function(){
-  if(storage.getItem("access_token") == undefined){
+  if(storage.getItem("access_token") == undefined || storage.getItem("access_token") == ""){
     $("#logout").css("display", "none");
+    alert("请先添加账户");
   } else {
     $("#login").css("display", "none");
   }
