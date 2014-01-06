@@ -1,6 +1,7 @@
 var storage = window.localStorage,
     access_token = storage.getItem("access_token"),
     uid = storage.getItem("uid"),
+    user = JSON.parse(storage.getItem("user")),
     faces = JSON.parse(storage.getItem("faces")),
     unreadCount,// 对象
     totalUnread = 0,// 数字
@@ -18,6 +19,7 @@ if(storage.getItem("access_token") == null){
 setInterval(function(){
     access_token = storage.getItem("access_token");
     uid = storage.getItem("uid");
+    user = JSON.parse(storage.getItem("user"));
     if(storage.hasOwnProperty("statusUnread")){
         statusUnread = Number(storage.getItem("statusUnread"));
     } else statusUnread = 0;
@@ -52,20 +54,28 @@ setInterval(function(){
         if(totalUnread != 0){
             chrome.browserAction.setBadgeText({text: totalUnread+""});
         }
+        var title = user.screen_name+":";
+        if(statusUnread !== 0){
+            title += " 新"+statusUnread;
+        }
         if(esUnread !== 0){
             var content = "您有";
             if(unreadCount.follower !== 0){
                 content += unreadCount.follower + "个新粉丝 ";
+                title += " 粉丝" + unreadCount.follower;
             }
             if(unreadCount.cmt !== 0){
                 content += unreadCount.cmt + "条新评论 ";
+                title += " 评论" + unreadCount.cmt;
             }
             if(unreadCount.mention_cmt + unreadCount.mention_status !== 0){
                 content += unreadCount.mention_cmt + unreadCount.mention_status + "条新@ ";
+                title += " @" + unreadCount.mention_cmt + unreadCount.mention_status;
             }
             var notification = webkitNotifications.createNotification('images/amazing_weibo48.png', '新消息', content);
             notification.show();
         }
+        chrome.browserAction.setTitle({title: title});
         chrome.runtime.sendMessage(unreadCount);
     }
 }, 15000);

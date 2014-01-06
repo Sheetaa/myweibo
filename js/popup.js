@@ -769,7 +769,7 @@ function fWeiboGenerator(weibo, isRepost, isComment){
       });
     });
   } else {
-    $btnGroup.append("<button class='btn btn-default' data-toggle='modal' data-target='.repostDialog' title='转发'><span class='glyphicon glyphicon-share'></span>"+weibo.reposts_count+"</button><button class='btn btn-default' data-toggle='modal' data-target='.commentsDialog' title='评论'><span class='glyphicon glyphicon-comment'></span>"+weibo.comments_count+"</button><button class='btn btn-default' title='收藏'></button>");
+    $btnGroup.append("<button class='btn btn-default' data-toggle='modal' data-target='.repostDialog' title='转发'><span class='glyphicon glyphicon-share'></span>"+weibo.reposts_count+"</button><button class='btn btn-default' data-toggle='modal' data-target='.commentsDialog' title='评论'><span class='glyphicon glyphicon-comment'></span>"+weibo.comments_count+"</button><button style='height:22px' class='btn btn-default' title='收藏'></button>");
     $(".btn:eq(0)", $btnGroup).click(function(){
       var $repost = $("div.repostDialog");
       $(".dialog-header", $repost).html("转发 @"+user.screen_name+" 的微博");
